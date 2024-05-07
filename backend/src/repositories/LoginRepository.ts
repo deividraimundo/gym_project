@@ -1,4 +1,19 @@
 import LoginModel from "../models/LoginModel";
+import { Database } from "../config/db";
+
+// // UP() - Open the database connection
+// (async () => {
+//   const db = new Database();
+//   await db.up();
+// })();
+
+// // Perform database operations here (if needed)
+
+// // DOWN() - Close the database connection
+// (async () => {
+//   const db = new Database();
+//   await db.down();
+// })();
 
 export default class LoginRepository {
   private login: LoginModel;
