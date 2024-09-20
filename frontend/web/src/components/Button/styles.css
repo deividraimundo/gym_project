@@ -1,0 +1,51 @@
+.container-button {
+  @apply cursor-pointer 
+  
+  h-9
+
+  flex 
+  justify-center 
+  items-center 
+  gap-2;
+}
+.button-text {
+  @apply text-[16px] 
+  text-base 
+  font-semibold
+  tracking-widest;
+}
+
+.button-border {
+  @apply border-none 
+  rounded-[4px];
+}
+
+.button-transition {
+  @apply transition 
+  duration-500 
+  ease-in-out;
+}
+
+.button-color-default {
+  @apply text-button-default-color
+  bg-button-default-background
+  hover:text-button-default-hover-color
+  hover:bg-button-default-hover-background;
+}
+
+.button-color-primary {
+  @apply text-button-primary-color
+  bg-button-primary-background
+  border
+  rounded-[4px]
+  border-button-primary-border
+  hover:text-button-primary-hover-color
+  hover:bg-button-primary-hover-background
+    hover:border-none;
+}
+
+.button-disabled {
+  @apply disabled:cursor-not-allowed
+  disabled:text-button-disabled-color
+  disabled:bg-button-disabled-background;
+}

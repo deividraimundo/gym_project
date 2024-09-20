@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: "Montserrat", sans-serif;
+}
+
+.main-container {
+  @apply my-0 mx-auto py-0 px-32;
+}
+
+.sub-title {
+  @apply font-bold text-title text-lg tracking-wider;
+}
+
+.text {
+  @apply font-sans text-text font-extralight text-base tracking-wider leading-3;
+}
+
+.divider {
+  @apply h-[1px] border-none rounded-sm bg-divider;
+}
+
+.text-hyperlink {
+  @apply font-sans font-extralight text-base tracking-wider leading-3 cursor-pointer text-details-primary hover:text-details-hover;
+}
+
+.card-container {
+  @apply text-card-default-color
+    bg-card-default-background
+    border
+    border-solid
+    border-card-default-border
+    rounded-lg
+
+    leading-3
+
+    p-4
+    w-full
+
+    flex
+    flex-col
+    gap-2;
+}

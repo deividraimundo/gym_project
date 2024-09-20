@@ -1,0 +1,59 @@
+.container-label-input {
+  @apply flex 
+  flex-col 
+  flex-1
+  gap-2 
+  
+  text-sm;
+}
+
+.input {
+  @apply h-8
+  py-5
+  px-2
+  text-sm
+  outline-none
+  text-opacity-0
+
+  transition-[border-color,_box-shadow,_color] 
+  duration-200 
+  ease-in
+
+  border
+  border-solid 
+  rounded-[4px];
+}
+
+.input-color {
+  @apply border-input-default-border
+  bg-input-default-background
+  placeholder:text-input-default-color;
+}
+
+.input-focus {
+  @apply focus:text-input-active-color 
+  focus:border-input-active-border 
+  focus:bg-input-active-background
+  active:text-input-active-color 
+  active:border-input-active-border 
+  active:bg-input-active-background;
+}
+
+.input-hover {
+  @apply hover:text-input-hover-color 
+  hover:border-input-hover-border 
+  hover:bg-input-hover-background;
+}
+
+.input-disabled {
+  @apply disabled:cursor-not-allowed 
+  disabled:text-input-disabled-color 
+  disabled:border-input-disabled-border 
+  disabled:bg-input-disabled-background;
+}
+
+.input-error {
+  @apply border-input-error-border 
+  bg-input-error-background
+  placeholder:text-input-error-color;
+}
