@@ -65,4 +65,27 @@ CREATE TABLE frango (
 );
 
 
+-- Tabela de Treinos
+CREATE TABLE treinos (
+    id_treino SERIAL PRIMARY KEY,
+    id_usuario INT NOT NULL, 
+    nome_treino VARCHAR(100) NOT NULL, -- Nome do treino (ex: Treino A, Treino de Peito)
+    data_inicio DATE NOT NULL, -- Data de início do treino
+    objetivo VARCHAR(255), -- Objetivo do treino (ex: Hipertrofia, Definição)
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario) 
+);
+
+-- Tabela de Exercícios
+CREATE TABLE exercicios (
+    id_exercicio SERIAL PRIMARY KEY,
+    id_treino INT NOT NULL, 
+    nome_exercicio VARCHAR(100) NOT NULL, -- (ex: Supino, Agachamento)
+    series INT NOT NULL, -- Quantidade de séries
+    repeticoes INT NOT NULL, -- Número de repetições por série
+    descanso INT NOT NULL, -- Tempo de descanso (segundos ou minutos?)
+    FOREIGN KEY (id_treino) REFERENCES treinos(id_treino) 
+);
+
+
+
 
