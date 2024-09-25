@@ -1,3 +1,4 @@
+import { ApolloWrapper } from "@/lib/apollo";
 import "./global.css";
 
 export default function RootLayout({
@@ -11,7 +12,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
       <body className="h-screen w-screen bg-background text-text">
-        {children}
+        <ApolloWrapper>{children}</ApolloWrapper>
       </body>
     </html>
   );
