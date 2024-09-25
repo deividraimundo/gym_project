@@ -57,6 +57,7 @@ CREATE TABLE avaliacao_fisica (
 CREATE TABLE frango (
     id_frango SERIAL PRIMARY KEY,
     id_usuario INT NOT NULL, -- Vinculado ao usuário
+    nome VARCHAR(100) NOT NULL,
     sexo CHAR(1) CHECK (sexo IN ('M', 'F')) NOT NULL, -- M para Masculino, F para Feminino
     personagem VARCHAR(100) NOT NULL, -- Escolha do personagem
     cor VARCHAR(50) NOT NULL, -- Cor associada
