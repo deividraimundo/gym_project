@@ -29,7 +29,7 @@ export default function SignInLayout() {
 
         <hr className="divider" />
 
-        <footer className="card-container">
+        <footer className="card-container w-full p-4">
           <p className="text">Não tem uma conta?</p>
           <Link href={"/sign-up"} className="text-hyperlink">
             Se inscreva gratuitamente

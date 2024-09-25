@@ -1,0 +1,65 @@
+.header-card-user {
+  @apply bg-background 
+  w-full 
+  h-36 
+  
+  relative
+  
+  rounded-ss-lg 
+  rounded-se-lg;
+}
+
+.button-edit {
+  @apply p-1 
+  cursor-pointer 
+  
+  rounded 
+  absolute
+  right-2
+  top-2
+  
+  bg-element  
+  hover:text-details-hover;
+}
+
+.footer-card-user {
+  @apply border-divider 
+  border-t 
+  border-solid
+  
+  p-6
+  w-5/6
+  text-center;
+}
+
+.image-card-user {
+  @apply w-40 
+  h-40 
+  
+  border 
+  border-divider 
+  rounded-[54px]
+  
+  bg-element;
+}
+
+.name-card-user {
+  @apply text-lg
+  uppercase
+  font-extrabold
+  text-title
+  tracking-widest;
+}
+
+.main-card-user {
+  @apply w-full 
+  flex 
+  flex-col 
+  justify-center
+  items-center
+  
+  gap-6
+  
+  absolute
+  -top-1/3;
+}

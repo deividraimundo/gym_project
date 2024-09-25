@@ -1,0 +1,11 @@
+.container-logo {
+  @apply flex items-center;
+}
+
+.text-logo {
+  @apply font-extrabold text-title text-xl tracking-widest;
+}
+
+.image-logo {
+  @apply relative -left-2 w-[60px] h-[60px];
+}

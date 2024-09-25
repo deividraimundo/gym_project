@@ -1,13 +1,17 @@
-// "use client";
-// import React from "react";
+"use client";
+import React from "react";
 
-// import Main from "@/components/Main";
-// import Login from "../(auth)/page";
+import Header from "@/components/Header";
 
-// export default function ProtectedLayout({
-//   children,
-// }: {
-//   children: React.ReactNode;
-// }) {
-//   return <Login>{children}</Login>;
-// }
+export default function ProtectedLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <>
+      <Header />
+      {children}
+    </>
+  );
+}

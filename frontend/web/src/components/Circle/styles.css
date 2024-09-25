@@ -1,0 +1,21 @@
+.container-circle {
+  @apply w-[50px] 
+  h-[50px] 
+  
+  rounded-full 
+  border 
+  border-solid 
+  border-details-primary
+  
+  flex
+  justify-center
+  items-center
+  
+  text-details-primary
+  text-lg
+
+  hover:text-details-hover
+  hover:border-details-hover
+  
+  cursor-pointer;
+}

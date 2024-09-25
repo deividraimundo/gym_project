@@ -1,0 +1,21 @@
+.container-header {
+  @apply h-[90px]
+  w-screen
+
+  bg-element;
+}
+
+.div-header {
+  @apply grid grid-flow-col h-full;
+}
+
+.left-header {
+}
+
+.center-header {
+  @apply items-center justify-center;
+}
+
+.right-header {
+  @apply items-center justify-end;
+}

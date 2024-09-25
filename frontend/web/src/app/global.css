@@ -15,7 +15,7 @@ html {
 }
 
 .main-container {
-  @apply my-0 mx-auto py-0 px-32;
+  @apply mx-auto py-0 px-32;
 }
 
 .sub-title {
@@ -44,10 +44,12 @@ html {
 
     leading-3
 
-    p-4
-    w-full
-
     flex
     flex-col
     gap-2;
+}
+
+.transitions {
+  @apply transition-colors 
+  ease-in;
 }
