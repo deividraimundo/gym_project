@@ -23,6 +23,7 @@ type DBConfig struct {
 
 type Config struct {
 	DBConfig DBConfig `envPrefix:"DB_"`
+	Port     int      `env:"PORT" envDefault:"9000"`
 	DevMode  bool
 }
 

@@ -1,9 +1,16 @@
 package main
 
 import (
+	"fmt"
 	"gym_project/config"
 	"gym_project/database"
+	"gym_project/graph"
+	"gym_project/graph/generated"
 	"log"
+	"net/http"
+
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 )
 
 func main() {
@@ -20,4 +27,18 @@ func main() {
 
 	defer dao.Close()
 	log.Println("Connection with database was successful!")
+
+	listen(cfg.Port)
+}
+
+func listen(port int) {
+	apiCfg := generated.Config{Resolvers: &graph.Resolver{}}
+	schema := generated.NewExecutableSchema(apiCfg)
+	srv := handler.New(schema)
+
+	http.Handle("/", playground.Handler("GraphQL playground", "/api/graphql"))
+	http.Handle("/api/graphql", srv)
+
+	log.Printf("connect to http://localhost:%d/ for GraphQL playground", port)
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
