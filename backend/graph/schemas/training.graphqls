@@ -1,0 +1,37 @@
+type Training {
+  id: Int!
+  idUser: Int!
+  title: String!
+  subTitle: String!
+  initialDate: Time!
+  endDate: Time!
+  objetive: String!
+  exercices: [Exercices!]!
+}
+
+input TrainingInput {
+  id: Int!
+  idUser: Int!
+  title: String!
+  subTitle: String!
+  initialDate: Time!
+  endDate: Time!
+  objetive: String!
+}
+
+input TrainingCustom {
+  self: TrainingInput!
+  exercices: [ExercicesInput!]!
+  idsDelExercices: [Int!]!
+}
+
+extend type Query {
+  getTrainingsByUser(idUser: Int!): [Training!]!
+  getTrainingById(id: Int!): Training!
+}
+
+extend type Mutation {
+  insertTraining(data: TrainingCustom!): Int!
+  updateTraining(data: TrainingCustom!): Int!
+  deleteTraining(id: Int!): Int!
+}

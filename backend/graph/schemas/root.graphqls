@@ -1,0 +1,19 @@
+scalar Time
+
+input SignInInput {
+  username: String!
+  password: String!
+}
+
+input SignUpInput {
+  name: String!
+  lastName: String!
+  email: String!
+  password: String!
+}
+
+extend type Mutation {
+  signIn(data: SignInInput!): String!
+  signUp(data: SignUpInput!): String!
+  logoff: String!
+}

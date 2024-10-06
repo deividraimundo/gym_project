@@ -6,10 +6,12 @@ require (
 	gitalpha.com/go/lib v0.2.78
 	github.com/99designs/gqlgen v0.17.47
 	github.com/caarlos0/env/v11 v11.2.2
+	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/lib/pq v1.10.9
 	github.com/sijms/go-ora/v2 v2.8.19
 	github.com/vektah/gqlparser/v2 v2.5.12
+	golang.org/x/crypto v0.27.0
 )
 
 require (
@@ -25,8 +27,8 @@ require (
 	github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.25.0 // indirect
-	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/text v0.15.0 // indirect
-	golang.org/x/tools v0.21.0 // indirect
+	golang.org/x/sync v0.8.0 // indirect
+	golang.org/x/text v0.18.0 // indirect
+	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

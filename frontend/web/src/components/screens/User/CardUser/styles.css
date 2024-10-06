@@ -1,3 +1,14 @@
+.aside-card-user {
+  @apply flex 
+  items-center 
+  
+  lg:w-4/12 
+  lg:h-[400px]
+
+  xl:w-3/12 
+  xl:h-[500px];
+}
+
 .header-card-user {
   @apply bg-background 
   w-full 
@@ -26,6 +37,8 @@
   @apply border-divider 
   border-t 
   border-solid
+
+  leading-5
   
   p-6
   w-5/6
@@ -33,12 +46,16 @@
 }
 
 .image-card-user {
-  @apply w-40 
-  h-40 
+  @apply xl:w-40 
+  xl:h-40 
+
+  lg:w-32
+  lg:h-32
   
   border 
   border-divider 
-  rounded-[54px]
+  xl:rounded-[54px]
+  lg:rounded-[44px]
   
   bg-element;
 }

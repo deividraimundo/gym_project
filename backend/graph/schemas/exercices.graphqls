@@ -1,0 +1,17 @@
+type Exercices {
+  id: Int!
+  idTraining: Int!
+  name: String!
+  series: Int!
+  repetitions: Int!
+  rest: Int!
+}
+
+input ExercicesInput {
+  id: Int!
+  idTraining: Int!
+  name: String!
+  series: Int!
+  repetitions: Int!
+  rest: Int!
+}

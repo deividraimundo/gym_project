@@ -1,0 +1,43 @@
+type MuscleAssesment {
+  id: Int!
+  idUser: Int!
+  avaliationDate: Time!
+  personalTrainer: String
+  bicepsLeft: Float!
+  bicepsRight: Float!
+  calfLeft: Float!
+  calfRight: Float!
+  thighLeft: Float!
+  thighRight: Float!
+  chest: Float!
+  forearmLeft: Float!
+  forearmRight: Float!
+}
+
+input MuscleAssesmentInput {
+  id: Int!
+  idUser: Int
+  avaliationDate: Time
+  personalTrainer: String
+  bicepsLeft: Float!
+  bicepsRight: Float!
+  calfLeft: Float!
+  calfRight: Float!
+  thighLeft: Float!
+  thighRight: Float!
+  forearmLeft: Float!
+  forearmRight: Float!
+  chest: Float!
+}
+
+extend type Query {
+  getCurrentMuscleAssesmentByUser(idUser: Int!): MuscleAssesment!
+  getHistoryMuscleAssesmentByUser(idUser: Int!): [MuscleAssesment!]!
+  getMuscleAssesmentById(id: Int!): MuscleAssesment!
+}
+
+extend type Mutation {
+  insertMuscleAssesment(data: MuscleAssesmentInput!): Int!
+  updateMuscleAssesment(data: MuscleAssesmentInput!): Int!
+  deleteMuscleAssesment(id: Int!): Int!
+}
