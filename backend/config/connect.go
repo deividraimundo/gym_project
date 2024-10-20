@@ -9,9 +9,9 @@ import (
 
 // ConnectDB realiza a conexão com o banco de dados
 func (d *DBConfig) ConnectDB() (*sqlx.DB, error) {
-	conStr := fmt.Sprintf("%s/%s@%s:%d/%s", d.User, d.Pass, d.Host, d.Port, d.Name) // Conexao com o postgres
+	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%d sslmode=disable", d.User, d.Pass, d.Name, d.Host, d.Port)
 	// Abre uma conexao com o banco de dados
-	db, err := sqlx.Open(d.Driver, conStr)
+	db, err := sqlx.Open(d.Driver, connStr)
 	if err != nil {
 		return nil, fmt.Errorf("erro ao abrir conexao com o banco: %w", err)
 	}

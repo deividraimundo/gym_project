@@ -10,8 +10,14 @@ func (s *Service) InitDatabase() error {
 		return errors.New("database is not initialized")
 	}
 
+	log.Println("Sincronizando tabela usuarios...")
+	err := s.dao.CreateTableUsers()
+	if err != nil {
+		return errors.New("error creating table usuarios: " + err.Error())
+	}
+
 	log.Println("Sincronizando tabela avaliacao_fisica...")
-	err := s.dao.CreateTableMuscleAssesment()
+	err = s.dao.CreateTableMuscleAssesment()
 	if err != nil {
 		return errors.New("error creating table avaliacao_fisica: " + err.Error())
 	}

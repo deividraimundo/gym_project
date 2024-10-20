@@ -10,14 +10,9 @@ import (
 	"gym_project/model"
 )
 
-// InsertMuscleAssesment is the resolver for the insertMuscleAssesment field.
-func (r *mutationResolver) InsertMuscleAssesment(ctx context.Context, data model.MuscleAssesmentInput) (int, error) {
-	return r.svc.InsertMuscleAssesment(ctx, data)
-}
-
-// UpdateMuscleAssesment is the resolver for the updateMuscleAssesment field.
-func (r *mutationResolver) UpdateMuscleAssesment(ctx context.Context, data model.MuscleAssesmentInput) (int, error) {
-	return r.svc.UpdateMuscleAssesment(ctx, data)
+// UpsertMuscleAssesment is the resolver for the upsertMuscleAssesment field.
+func (r *mutationResolver) UpsertMuscleAssesment(ctx context.Context, data model.MuscleAssesmentInput) (int, error) {
+	return r.svc.UpsertMuscleAssesment(ctx, data)
 }
 
 // DeleteMuscleAssesment is the resolver for the deleteMuscleAssesment field.

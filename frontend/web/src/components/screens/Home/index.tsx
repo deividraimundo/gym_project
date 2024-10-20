@@ -5,7 +5,7 @@ import CardUser from "./CardUser";
 import CardTraining from "./CardTraining";
 import CardPhysicalAssessment from "./CardPhysicalAssessment";
 
-const User: React.FC = () => {
+const Home: React.FC = () => {
   return (
     <div className="container-user main-container">
       <CardUser />
@@ -17,4 +17,4 @@ const User: React.FC = () => {
   );
 };
 
-export default User;
+export default Home;

@@ -37,7 +37,6 @@ extend type Query {
 }
 
 extend type Mutation {
-  insertMuscleAssesment(data: MuscleAssesmentInput!): Int!
-  updateMuscleAssesment(data: MuscleAssesmentInput!): Int!
+  upsertMuscleAssesment(data: MuscleAssesmentInput!): Int!
   deleteMuscleAssesment(id: Int!): Int!
 }

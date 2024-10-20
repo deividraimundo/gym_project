@@ -6,7 +6,7 @@ import "./styles.css";
 
 const CardUser: React.FC = () => {
   return (
-    <aside className="card-container aside-card-user">
+    <aside className="card-container aside-card-user flex flex-col">
       <header className="header-card-user">
         <button className="button-edit transitions">
           <BiEditAlt size={22} />

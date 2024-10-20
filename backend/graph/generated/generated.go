@@ -76,13 +76,11 @@ type ComplexityRoot struct {
 	Mutation struct {
 		DeleteMuscleAssesment func(childComplexity int, id int) int
 		DeleteTraining        func(childComplexity int, id int) int
-		InsertMuscleAssesment func(childComplexity int, data model.MuscleAssesmentInput) int
-		InsertTraining        func(childComplexity int, data model.TrainingCustom) int
 		Logoff                func(childComplexity int) int
 		SignIn                func(childComplexity int, data model.SignInInput) int
 		SignUp                func(childComplexity int, data model.SignUpInput) int
-		UpdateMuscleAssesment func(childComplexity int, data model.MuscleAssesmentInput) int
-		UpdateTraining        func(childComplexity int, data model.TrainingCustom) int
+		UpsertMuscleAssesment func(childComplexity int, data model.MuscleAssesmentInput) int
+		UpsertTraining        func(childComplexity int, data model.TrainingCustom) int
 	}
 
 	Query struct {
@@ -106,14 +104,12 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	InsertMuscleAssesment(ctx context.Context, data model.MuscleAssesmentInput) (int, error)
-	UpdateMuscleAssesment(ctx context.Context, data model.MuscleAssesmentInput) (int, error)
+	UpsertMuscleAssesment(ctx context.Context, data model.MuscleAssesmentInput) (int, error)
 	DeleteMuscleAssesment(ctx context.Context, id int) (int, error)
 	SignIn(ctx context.Context, data model.SignInInput) (string, error)
 	SignUp(ctx context.Context, data model.SignUpInput) (string, error)
 	Logoff(ctx context.Context) (string, error)
-	InsertTraining(ctx context.Context, data model.TrainingCustom) (int, error)
-	UpdateTraining(ctx context.Context, data model.TrainingCustom) (int, error)
+	UpsertTraining(ctx context.Context, data model.TrainingCustom) (int, error)
 	DeleteTraining(ctx context.Context, id int) (int, error)
 }
 type QueryResolver interface {
@@ -303,30 +299,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteTraining(childComplexity, args["id"].(int)), true
 
-	case "Mutation.insertMuscleAssesment":
-		if e.complexity.Mutation.InsertMuscleAssesment == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_insertMuscleAssesment_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.InsertMuscleAssesment(childComplexity, args["data"].(model.MuscleAssesmentInput)), true
-
-	case "Mutation.insertTraining":
-		if e.complexity.Mutation.InsertTraining == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_insertTraining_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.InsertTraining(childComplexity, args["data"].(model.TrainingCustom)), true
-
 	case "Mutation.logoff":
 		if e.complexity.Mutation.Logoff == nil {
 			break
@@ -358,29 +330,29 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.SignUp(childComplexity, args["data"].(model.SignUpInput)), true
 
-	case "Mutation.updateMuscleAssesment":
-		if e.complexity.Mutation.UpdateMuscleAssesment == nil {
+	case "Mutation.upsertMuscleAssesment":
+		if e.complexity.Mutation.UpsertMuscleAssesment == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateMuscleAssesment_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_upsertMuscleAssesment_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateMuscleAssesment(childComplexity, args["data"].(model.MuscleAssesmentInput)), true
+		return e.complexity.Mutation.UpsertMuscleAssesment(childComplexity, args["data"].(model.MuscleAssesmentInput)), true
 
-	case "Mutation.updateTraining":
-		if e.complexity.Mutation.UpdateTraining == nil {
+	case "Mutation.upsertTraining":
+		if e.complexity.Mutation.UpsertTraining == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateTraining_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_upsertTraining_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateTraining(childComplexity, args["data"].(model.TrainingCustom)), true
+		return e.complexity.Mutation.UpsertTraining(childComplexity, args["data"].(model.TrainingCustom)), true
 
 	case "Query.getCurrentMuscleAssesmentByUser":
 		if e.complexity.Query.GetCurrentMuscleAssesmentByUser == nil {
@@ -666,8 +638,7 @@ extend type Query {
 }
 
 extend type Mutation {
-  insertMuscleAssesment(data: MuscleAssesmentInput!): Int!
-  updateMuscleAssesment(data: MuscleAssesmentInput!): Int!
+  upsertMuscleAssesment(data: MuscleAssesmentInput!): Int!
   deleteMuscleAssesment(id: Int!): Int!
 }
 `, BuiltIn: false},
@@ -724,8 +695,7 @@ extend type Query {
 }
 
 extend type Mutation {
-  insertTraining(data: TrainingCustom!): Int!
-  updateTraining(data: TrainingCustom!): Int!
+  upsertTraining(data: TrainingCustom!): Int!
   deleteTraining(id: Int!): Int!
 }
 `, BuiltIn: false},
@@ -766,36 +736,6 @@ func (ec *executionContext) field_Mutation_deleteTraining_args(ctx context.Conte
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_insertMuscleAssesment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 model.MuscleAssesmentInput
-	if tmp, ok := rawArgs["data"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-		arg0, err = ec.unmarshalNMuscleAssesmentInput2gym_projectᚋmodelᚐMuscleAssesmentInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["data"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_insertTraining_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 model.TrainingCustom
-	if tmp, ok := rawArgs["data"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-		arg0, err = ec.unmarshalNTrainingCustom2gym_projectᚋmodelᚐTrainingCustom(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["data"] = arg0
-	return args, nil
-}
-
 func (ec *executionContext) field_Mutation_signIn_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -826,7 +766,7 @@ func (ec *executionContext) field_Mutation_signUp_args(ctx context.Context, rawA
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateMuscleAssesment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_upsertMuscleAssesment_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 model.MuscleAssesmentInput
@@ -841,7 +781,7 @@ func (ec *executionContext) field_Mutation_updateMuscleAssesment_args(ctx contex
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateTraining_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_upsertTraining_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 model.TrainingCustom
@@ -1817,8 +1757,8 @@ func (ec *executionContext) fieldContext_MuscleAssesment_forearmRight(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_insertMuscleAssesment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_insertMuscleAssesment(ctx, field)
+func (ec *executionContext) _Mutation_upsertMuscleAssesment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_upsertMuscleAssesment(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1831,7 +1771,7 @@ func (ec *executionContext) _Mutation_insertMuscleAssesment(ctx context.Context,
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().InsertMuscleAssesment(rctx, fc.Args["data"].(model.MuscleAssesmentInput))
+		return ec.resolvers.Mutation().UpsertMuscleAssesment(rctx, fc.Args["data"].(model.MuscleAssesmentInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1848,7 +1788,7 @@ func (ec *executionContext) _Mutation_insertMuscleAssesment(ctx context.Context,
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_insertMuscleAssesment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_upsertMuscleAssesment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -1865,62 +1805,7 @@ func (ec *executionContext) fieldContext_Mutation_insertMuscleAssesment(ctx cont
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_insertMuscleAssesment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateMuscleAssesment(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateMuscleAssesment(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateMuscleAssesment(rctx, fc.Args["data"].(model.MuscleAssesmentInput))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateMuscleAssesment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateMuscleAssesment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_upsertMuscleAssesment_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -2136,8 +2021,8 @@ func (ec *executionContext) fieldContext_Mutation_logoff(_ context.Context, fiel
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_insertTraining(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_insertTraining(ctx, field)
+func (ec *executionContext) _Mutation_upsertTraining(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_upsertTraining(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2150,7 +2035,7 @@ func (ec *executionContext) _Mutation_insertTraining(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().InsertTraining(rctx, fc.Args["data"].(model.TrainingCustom))
+		return ec.resolvers.Mutation().UpsertTraining(rctx, fc.Args["data"].(model.TrainingCustom))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2167,7 +2052,7 @@ func (ec *executionContext) _Mutation_insertTraining(ctx context.Context, field 
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_insertTraining(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_upsertTraining(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2184,62 +2069,7 @@ func (ec *executionContext) fieldContext_Mutation_insertTraining(ctx context.Con
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_insertTraining_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
-	}
-	return fc, nil
-}
-
-func (ec *executionContext) _Mutation_updateTraining(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateTraining(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTraining(rctx, fc.Args["data"].(model.TrainingCustom))
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		if !graphql.HasFieldError(ctx, fc) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return graphql.Null
-	}
-	res := resTmp.(int)
-	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_Mutation_updateTraining(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "Mutation",
-		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
-		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateTraining_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_upsertTraining_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -5516,16 +5346,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 		switch field.Name {
 		case "__typename":
 			out.Values[i] = graphql.MarshalString("Mutation")
-		case "insertMuscleAssesment":
+		case "upsertMuscleAssesment":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_insertMuscleAssesment(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "updateMuscleAssesment":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateMuscleAssesment(ctx, field)
+				return ec._Mutation_upsertMuscleAssesment(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -5558,16 +5381,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "insertTraining":
+		case "upsertTraining":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_insertTraining(ctx, field)
-			})
-			if out.Values[i] == graphql.Null {
-				out.Invalids++
-			}
-		case "updateTraining":
-			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateTraining(ctx, field)
+				return ec._Mutation_upsertTraining(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++

@@ -4,9 +4,8 @@ CREATE TABLE usuarios (
     name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     pass VARCHAR(255) NOT NULL,
-    -- Senha (Armazenar em hashes)
     email VARCHAR(100) NOT NULL,
-    UNIQUE (email) -- email único
+    UNIQUE (email)
 );
 
 --Restrições Médicas

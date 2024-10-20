@@ -41,7 +41,7 @@ func (d *DAO) InsertMuscleAssesment(ctx context.Context, data model.MuscleAssesm
 	return
 }
 
-func (d *DAO) UpdateMuscleAssesment(ctx context.Context, data model.MuscleAssesmentInput) (err error) {
+func (d *DAO) UpdateMuscleAssesment(ctx context.Context, data model.MuscleAssesmentInput) (rowsAffected int64, err error) {
 	q := `
 		update avaliacao_fisica set
 			id_usuario = :id_usuario,
@@ -58,8 +58,12 @@ func (d *DAO) UpdateMuscleAssesment(ctx context.Context, data model.MuscleAssesm
 			antebraco_direita = :antebraco_direita
 		where id = :id
 	`
-	_, err = d.db.NamedExecContext(ctx, q, data)
-	return
+	row, err := d.db.NamedExecContext(ctx, q, data)
+	if err != nil {
+		return
+	}
+
+	return row.RowsAffected()
 }
 
 func (d *DAO) DeleteMuscleAssesment(ctx context.Context, id int) (err error) {

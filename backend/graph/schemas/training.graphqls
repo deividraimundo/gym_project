@@ -31,7 +31,6 @@ extend type Query {
 }
 
 extend type Mutation {
-  insertTraining(data: TrainingCustom!): Int!
-  updateTraining(data: TrainingCustom!): Int!
+  upsertTraining(data: TrainingCustom!): Int!
   deleteTraining(id: Int!): Int!
 }

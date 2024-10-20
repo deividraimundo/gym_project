@@ -5,8 +5,8 @@ import (
 	"log"
 
 	"github.com/caarlos0/env/v11"
+	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
-	_ "github.com/sijms/go-ora/v2"
 )
 
 var Version = "dev"
@@ -16,9 +16,9 @@ type DBConfig struct {
 	User   string `env:"USER,required"`
 	Pass   string `env:"PASS,required"`
 	Host   string `env:"HOST,required"`
-	Port   int    `env:"PORT" envDefault:"1521"`
-	Name   string `env:"NAME" envDefault:"dbora"`
-	Driver string `env:"DB_TYPE" envDefault:"oracle"`
+	Port   int    `env:"PORT" envDefault:"5432"`
+	Name   string `env:"NAME" envDefault:"postgres"`
+	Driver string `env:"DRIVER" envDefault:"postgres"`
 }
 
 type Config struct {
@@ -43,7 +43,12 @@ func New() (*Config, error) {
 		DevMode: devMode,
 	}
 
-	err := env.Parse(&cfg)
+	err := godotenv.Load(".env")
+	if err != nil {
+		return nil, err
+	}
+
+	err = env.Parse(&cfg)
 	if err != nil {
 		return nil, err
 	}

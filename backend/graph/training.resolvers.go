@@ -6,29 +6,23 @@ package graph
 
 import (
 	"context"
-	"fmt"
 	"gym_project/graph/generated"
 	"gym_project/model"
 )
 
-// InsertTraining is the resolver for the insertTraining field.
-func (r *mutationResolver) InsertTraining(ctx context.Context, data model.TrainingCustom) (int, error) {
-	panic(fmt.Errorf("not implemented: InsertTraining - insertTraining"))
-}
-
-// UpdateTraining is the resolver for the updateTraining field.
-func (r *mutationResolver) UpdateTraining(ctx context.Context, data model.TrainingCustom) (int, error) {
-	panic(fmt.Errorf("not implemented: UpdateTraining - updateTraining"))
+// UpsertTraining is the resolver for the upsertTraining field.
+func (r *mutationResolver) UpsertTraining(ctx context.Context, data model.TrainingCustom) (int, error) {
+	return r.svc.UpsertTraining(ctx, data)
 }
 
 // DeleteTraining is the resolver for the deleteTraining field.
 func (r *mutationResolver) DeleteTraining(ctx context.Context, id int) (int, error) {
-	panic(fmt.Errorf("not implemented: DeleteTraining - deleteTraining"))
+	return r.svc.DeleteTraining(ctx, id)
 }
 
 // GetTrainingsByUser is the resolver for the getTrainingsByUser field.
 func (r *queryResolver) GetTrainingsByUser(ctx context.Context, idUser int) ([]*model.Training, error) {
-	return r.dao.GetTrainingsByUser(ctx, idUser)
+	return r.dao.SelectTrainingsByUser(ctx, idUser)
 }
 
 // GetTrainingByID is the resolver for the getTrainingById field.

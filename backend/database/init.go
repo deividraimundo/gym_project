@@ -1,6 +1,45 @@
 package database
 
+func (d *DAO) existsTable(tableName string) (exists bool, err error) {
+	q := `
+		SELECT EXISTS (
+			SELECT 1
+			FROM information_schema.tables 
+			WHERE table_schema = 'public'
+			  AND table_name = $1
+		);
+	`
+	q = d.db.Rebind(q)
+	err = d.db.Get(&exists, q, tableName)
+	return
+}
+
+func (d *DAO) CreateTableUsers() (err error) {
+	exists, err := d.existsTable("usuarios")
+	if err != nil || exists {
+		return
+	}
+
+	q := `
+		CREATE TABLE usuarios (
+			id SERIAL PRIMARY KEY,
+			name VARCHAR(50) NOT NULL,
+			last_name VARCHAR(50) NOT NULL,
+			pass VARCHAR(255) NOT NULL,
+			email VARCHAR(100) NOT NULL,
+			UNIQUE (email)
+		);
+	`
+	_, err = d.db.Exec(q)
+	return
+}
+
 func (d *DAO) CreateTableMuscleAssesment() (err error) {
+	exists, err := d.existsTable("avaliacao_fisica")
+	if err != nil || exists {
+		return
+	}
+
 	q := `
 		CREATE TABLE avaliacao_fisica (
 			id SERIAL PRIMARY KEY,
@@ -16,7 +55,7 @@ func (d *DAO) CreateTableMuscleAssesment() (err error) {
 			torax DECIMAL(5, 2),
 			antebraco_esquerda DECIMAL(5, 2),
 			antebraco_direita DECIMAL(5, 2),
-    	FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+    	FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
 		);
 	`
 	_, err = d.db.Exec(q)
@@ -24,6 +63,11 @@ func (d *DAO) CreateTableMuscleAssesment() (err error) {
 }
 
 func (d *DAO) CreateTableTraining() (err error) {
+	exists, err := d.existsTable("treinos")
+	if err != nil || exists {
+		return
+	}
+
 	q := `
 		CREATE TABLE treinos (
 				id SERIAL PRIMARY KEY,
@@ -33,7 +77,7 @@ func (d *DAO) CreateTableTraining() (err error) {
 				data_inicio DATE NOT NULL,
 				data_fim DATE NOT NULL,
 				objetivo VARCHAR(255),
-				FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+				FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
 		);
 	`
 	_, err = d.db.Exec(q)
@@ -41,6 +85,11 @@ func (d *DAO) CreateTableTraining() (err error) {
 }
 
 func (d *DAO) CreateTableExercices() (err error) {
+	exists, err := d.existsTable("exercicios")
+	if err != nil || exists {
+		return
+	}
+
 	q := `
 		CREATE TABLE exercicios (
 				id SERIAL PRIMARY KEY,
@@ -49,7 +98,7 @@ func (d *DAO) CreateTableExercices() (err error) {
 				series INT NOT NULL,
 				repeticoes INT NOT NULL,
 				descanso INT NOT NULL,
-				FOREIGN KEY (id_treino) REFERENCES treinos(id_treino)
+				FOREIGN KEY (id_treino) REFERENCES treinos(id)
 		);
 	`
 	_, err = d.db.Exec(q)

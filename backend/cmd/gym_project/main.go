@@ -10,9 +10,13 @@ import (
 	"gym_project/services"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/go-chi/chi/v5"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -40,14 +44,29 @@ func main() {
 }
 
 func listen(port int) {
+	router := chi.NewRouter()
+	router.Use(cors.New(cors.Options{AllowCredentials: true}).Handler)
+
 	apiCfg := generated.Config{Resolvers: &graph.Resolver{}}
 	schema := generated.NewExecutableSchema(apiCfg)
 	srv := handler.New(schema)
+	srv.AddTransport(transport.Options{})
+	srv.AddTransport(transport.POST{})
+	srv.AddTransport(transport.MultipartForm{})
+	srv.AddTransport(transport.Websocket{
+		KeepAlivePingInterval: 10 * time.Second,
+	})
 
-	http.Handle("/", playground.Handler("GraphQL playground", "/api/graphql"))
-	http.Handle("/graphql", srv)
+	router.Handle("/graphql", srv)
+	router.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
 	srv.AroundFields(auth.ResolverMiddleware())
 
 	log.Printf("connect to http://localhost:%d/ for GraphQL playground", port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
+	server := &http.Server{
+		ReadTimeout:  30 * time.Second,
+		WriteTimeout: 30 * time.Second,
+		Handler:      router,
+		Addr:         fmt.Sprintf(":%d", port),
+	}
+	log.Fatal(server.ListenAndServe())
 }

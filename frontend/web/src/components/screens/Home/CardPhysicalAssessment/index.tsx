@@ -1,12 +1,21 @@
 import React from "react";
 
 import { IoAdd } from "react-icons/io5";
+import { useRouter } from "next/navigation";
 
 import Button from "@/components/Button";
 
 const CardPhysicalAssessment: React.FC = () => {
+  const router = useRouter();
+
+  const handleClick = (ev: React.MouseEvent) => {
+    ev.stopPropagation();
+    ev.preventDefault();
+    router.push("/cadmuscleassesment?isEditing=false");
+  };
+
   return (
-    <section className="card-container p-5 flex justify-between h-64">
+    <section className="card-container p-5 flex justify-between h-64 flex-col">
       <header>
         <h1>Avaliação física</h1>
       </header>
@@ -18,7 +27,7 @@ const CardPhysicalAssessment: React.FC = () => {
       </main>
 
       <footer className="mx-auto">
-        <Button onClick={null} width="15rem">
+        <Button onClick={handleClick} width="15rem">
           <IoAdd size={23} />
           <p>Adicionar Avaliação</p>
         </Button>

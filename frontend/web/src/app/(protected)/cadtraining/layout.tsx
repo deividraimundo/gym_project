@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 
-import User from "@/components/screens/User";
+import CadTraining from "@/components/screens/CadTraining";
 
 export default function ProtectedLayout() {
-  return <User />;
+  return <CadTraining />;
 }
