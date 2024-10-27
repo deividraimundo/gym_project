@@ -24,3 +24,13 @@ func (d *DAO) Transactionally(fn func(*sqlx.Tx) error) error {
 
 	return nil
 }
+
+func GetNextSequence(sq string, tx *sqlx.Tx) (int, error) {
+	var id int
+	q := `
+		select nextval($1);
+	`
+	q = tx.Rebind(q)
+	err := tx.Get(&id, q, sq)
+	return id, err
+}

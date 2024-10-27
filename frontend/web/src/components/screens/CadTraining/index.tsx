@@ -1,31 +1,62 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
+import moment from "moment";
 import { IoAdd } from "react-icons/io5";
 import { FaTrash } from "react-icons/fa";
-import { useRouter } from "next/navigation";
-import { useMutation } from "@apollo/client";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useMutation, useQuery } from "@apollo/client";
+import cloneDeep from "lodash/cloneDeep";
 
 import "./styles.css";
 
 import { MUTATION_UPSERT_TRAINING } from "@/apollo/mutations";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
-import { Exercices, Training } from "@/types";
+import { Exercices, TrainingInput, TrainingInputCustom } from "@/types";
+import { QUERY_TRAINING_BY_ID } from "@/apollo/queries";
 
-interface CadTrainingProps {
-  isEditing: boolean;
-}
-
-const CadTraining: React.FC<CadTrainingProps> = ({ isEditing }) => {
-  const [form, setForm] = useState<Training>();
-  const [exercice, setExercice] = useState<Exercices>();
-
+const CadTraining: React.FC = () => {
+  const [exercice, setExercice] = useState<Exercices>({
+    id: 0,
+    idTraining: 0,
+    name: "",
+    repetitions: 0,
+    rest: 0,
+    series: 0,
+  });
   const [createTraining] = useMutation(MUTATION_UPSERT_TRAINING);
-
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+
+  const { data, error, loading } = useQuery(QUERY_TRAINING_BY_ID, {
+    fetchPolicy: "network-only",
+    variables: {
+      id: Number(id),
+    },
+  });
+  const [form, setForm] = useState<TrainingInputCustom>({
+    self: {
+      id: 0,
+      idUser: 0,
+      endDate: new Date(),
+      initialDate: new Date(),
+      objetive: "",
+      subTitle: "Undefined",
+      title: "",
+    },
+    exercices: [],
+    idsDelExercices: [],
+  });
 
   const handleForm = (name: string, value: unknown) => {
-    setForm((old) => ({ ...old, [name]: value }));
+    const data: TrainingInputCustom = cloneDeep(form);
+    const newTrainingInput: TrainingInput = {
+      ...data.self,
+      [name]: value,
+    };
+    data.self = newTrainingInput;
+    setForm(data);
   };
 
   const handleExercice = (name: string, value: unknown) => {
@@ -35,10 +66,9 @@ const CadTraining: React.FC<CadTrainingProps> = ({ isEditing }) => {
   const addExercice = (ev: React.MouseEvent<Element, MouseEvent>) => {
     ev.preventDefault();
     ev.stopPropagation();
-    setForm((old) => ({
-      ...old,
-      exercices: [...(old?.exercices ?? []), { ...exercice }],
-    }));
+    const data: TrainingInputCustom = cloneDeep(form);
+    data.exercices = [...(data?.exercices ?? []), { ...exercice }];
+    setForm(data);
   };
 
   const removeExercice = (
@@ -47,11 +77,10 @@ const CadTraining: React.FC<CadTrainingProps> = ({ isEditing }) => {
   ) => {
     ev.preventDefault();
     ev.stopPropagation();
+    const data: TrainingInputCustom = cloneDeep(form);
     const newEx = form?.exercices?.filter((_, i) => i !== idx);
-    setForm((old) => ({
-      ...old,
-      exercices: [...(newEx ?? [])],
-    }));
+    data.exercices = newEx ?? [];
+    setForm(data);
   };
 
   const back = () => {
@@ -64,16 +93,36 @@ const CadTraining: React.FC<CadTrainingProps> = ({ isEditing }) => {
     try {
       await createTraining({
         variables: {
-          data: {
-            form,
-          },
+          data: form,
         },
       });
-      setForm(undefined); // Limpa o input após o envio
+      setForm({
+        self: {
+          id: 0,
+          idUser: 0,
+          endDate: new Date(),
+          initialDate: new Date(),
+          objetive: "",
+          subTitle: "Undefined",
+          title: "",
+        },
+        exercices: [],
+        idsDelExercices: [],
+      }); // Limpa o input após o envio
+      back();
     } catch (err) {
       console.error("Erro ao criar treino:", err);
     }
   };
+
+  useEffect(() => {
+    if (loading || !!error || !data || form?.self?.id !== 0) return;
+    setForm({
+      self: data?.getTrainingById?.self,
+      exercices: data?.getTrainingById?.exercices,
+      idsDelExercices: [],
+    });
+  }, [data, error, loading]);
 
   return (
     <div className="container-training main-container">
@@ -84,20 +133,23 @@ const CadTraining: React.FC<CadTrainingProps> = ({ isEditing }) => {
             text="Título do treino"
             type="text"
             placeholder="Digite o título do treino..."
-            onChange={(ev) => handleForm("title", ev.currentTarget)}
+            onChange={(ev) => handleForm("title", ev.target.value)}
+            value={form?.self?.title ?? ""}
           />
 
           <Input
             text="Objetivo"
             type="text"
             placeholder="Hipertrofia, força,..."
-            onChange={(ev) => handleForm("objetive", ev.currentTarget)}
+            onChange={(ev) => handleForm("objetive", ev.target.value)}
+            value={form?.self?.objetive ?? ""}
           />
 
           <Input
             text="Data de início"
             type="text"
-            onChange={(ev) => handleForm("initialDate", ev.currentTarget)}
+            onChange={(ev) => handleForm("initialDate", ev.target.value)}
+            value={moment(form?.self?.initialDate).format("DD/MM/YYYY")}
             disabled
           />
         </section>
@@ -105,7 +157,7 @@ const CadTraining: React.FC<CadTrainingProps> = ({ isEditing }) => {
         <section className="card-container p-5 flex flex-col gap-4 mb-10">
           <div className="flex justify-center items-end gap-4">
             <Input
-              value={exercice?.name}
+              value={exercice?.name ?? ""}
               text="Exercício"
               type="text"
               placeholder="Digite o exercício..."
@@ -113,7 +165,7 @@ const CadTraining: React.FC<CadTrainingProps> = ({ isEditing }) => {
             />
 
             <Input
-              value={exercice?.repetitions}
+              value={exercice?.repetitions ?? ""}
               text="Repetição"
               type="number"
               placeholder="Quantidade de repetições..."
@@ -121,7 +173,7 @@ const CadTraining: React.FC<CadTrainingProps> = ({ isEditing }) => {
             />
 
             <Input
-              value={exercice?.series}
+              value={exercice?.series ?? ""}
               text="Série"
               type="number"
               placeholder="Quantidade de séries..."
@@ -129,7 +181,7 @@ const CadTraining: React.FC<CadTrainingProps> = ({ isEditing }) => {
             />
 
             <Input
-              value={exercice?.rest}
+              value={exercice?.rest ?? ""}
               text="Descanso (segundos)"
               type="number"
               placeholder="Tempo de descanço..."
@@ -158,7 +210,10 @@ const CadTraining: React.FC<CadTrainingProps> = ({ isEditing }) => {
             <h1 className="text-center text-xl font-bold">Exercícios</h1>
             <div className="grid grid-cols-3 gap-4">
               {form?.exercices?.map((it, idx) => (
-                <div className="border rounded p-4 border-details-primary flex gap-4 items-center justify-between">
+                <div
+                  key={`card-${idx}`}
+                  className="border rounded p-4 border-details-primary flex gap-4 items-center justify-between"
+                >
                   <p>
                     {it.name}, {it?.repetitions} Repetições, {it?.series}{" "}
                     séries, descanso {it?.rest} segundos
@@ -175,7 +230,7 @@ const CadTraining: React.FC<CadTrainingProps> = ({ isEditing }) => {
           </section>
         )}
 
-        <div className="flex gap-4">
+        <div className="flex gap-4 mt-10">
           <button
             className="text-button-default-color bg-button-default-background hover:text-button-default-hover-color hover:bg-button-default-hover-background h-9 border-none rounded-[4px] cursor-pointer text-[16px] text-base font-semibold tracking-widest w-[12rem] disabled:cursor-not-allowed disabled:text-button-disabled-color disabled:bg-button-disabled-background"
             type="submit"

@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/handler/extension"
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-chi/chi/v5"
@@ -40,16 +41,18 @@ func main() {
 		log.Fatalf("nao pode criar tabelas: %v", err)
 	}
 
-	listen(cfg.Port)
+	listen(cfg.Port, svc)
 }
 
-func listen(port int) {
+func listen(port int, svc *services.Service) {
+	resolver := graph.NewResolver(svc)
 	router := chi.NewRouter()
 	router.Use(cors.New(cors.Options{AllowCredentials: true}).Handler)
 
-	apiCfg := generated.Config{Resolvers: &graph.Resolver{}}
+	apiCfg := generated.Config{Resolvers: resolver}
 	schema := generated.NewExecutableSchema(apiCfg)
 	srv := handler.New(schema)
+	srv.Use(extension.Introspection{})
 	srv.AddTransport(transport.Options{})
 	srv.AddTransport(transport.POST{})
 	srv.AddTransport(transport.MultipartForm{})

@@ -21,7 +21,7 @@ const CadMuscleAssesment: React.FC = ({}) => {
   };
 
   const back = () => {
-    router.push("/");
+    router.push("http://localhost:3000/");
   };
 
   const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {

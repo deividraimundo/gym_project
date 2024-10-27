@@ -41,7 +41,6 @@ type Config struct {
 type ResolverRoot interface {
 	Mutation() MutationResolver
 	Query() QueryResolver
-	Training() TrainingResolver
 }
 
 type DirectiveRoot struct {
@@ -80,7 +79,7 @@ type ComplexityRoot struct {
 		SignIn                func(childComplexity int, data model.SignInInput) int
 		SignUp                func(childComplexity int, data model.SignUpInput) int
 		UpsertMuscleAssesment func(childComplexity int, data model.MuscleAssesmentInput) int
-		UpsertTraining        func(childComplexity int, data model.TrainingCustom) int
+		UpsertTraining        func(childComplexity int, data model.TrainingInputCustom) int
 	}
 
 	Query struct {
@@ -88,18 +87,22 @@ type ComplexityRoot struct {
 		GetHistoryMuscleAssesmentByUser func(childComplexity int, idUser int) int
 		GetMuscleAssesmentByID          func(childComplexity int, id int) int
 		GetTrainingByID                 func(childComplexity int, id int) int
-		GetTrainingsByUser              func(childComplexity int, idUser int) int
+		GetTrainingsByUser              func(childComplexity int) int
 	}
 
 	Training struct {
 		EndDate     func(childComplexity int) int
-		Exercices   func(childComplexity int) int
 		ID          func(childComplexity int) int
 		IDUser      func(childComplexity int) int
 		InitialDate func(childComplexity int) int
 		Objetive    func(childComplexity int) int
 		SubTitle    func(childComplexity int) int
 		Title       func(childComplexity int) int
+	}
+
+	TrainingCustom struct {
+		Exercices func(childComplexity int) int
+		Self      func(childComplexity int) int
 	}
 }
 
@@ -109,18 +112,15 @@ type MutationResolver interface {
 	SignIn(ctx context.Context, data model.SignInInput) (string, error)
 	SignUp(ctx context.Context, data model.SignUpInput) (string, error)
 	Logoff(ctx context.Context) (string, error)
-	UpsertTraining(ctx context.Context, data model.TrainingCustom) (int, error)
+	UpsertTraining(ctx context.Context, data model.TrainingInputCustom) (int, error)
 	DeleteTraining(ctx context.Context, id int) (int, error)
 }
 type QueryResolver interface {
 	GetCurrentMuscleAssesmentByUser(ctx context.Context, idUser int) (*model.MuscleAssesment, error)
 	GetHistoryMuscleAssesmentByUser(ctx context.Context, idUser int) ([]*model.MuscleAssesment, error)
 	GetMuscleAssesmentByID(ctx context.Context, id int) (*model.MuscleAssesment, error)
-	GetTrainingsByUser(ctx context.Context, idUser int) ([]*model.Training, error)
-	GetTrainingByID(ctx context.Context, id int) (*model.Training, error)
-}
-type TrainingResolver interface {
-	Exercices(ctx context.Context, obj *model.Training) ([]*model.Exercices, error)
+	GetTrainingsByUser(ctx context.Context) ([]*model.TrainingCustom, error)
+	GetTrainingByID(ctx context.Context, id int) (*model.TrainingCustom, error)
 }
 
 type executableSchema struct {
@@ -352,7 +352,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpsertTraining(childComplexity, args["data"].(model.TrainingCustom)), true
+		return e.complexity.Mutation.UpsertTraining(childComplexity, args["data"].(model.TrainingInputCustom)), true
 
 	case "Query.getCurrentMuscleAssesmentByUser":
 		if e.complexity.Query.GetCurrentMuscleAssesmentByUser == nil {
@@ -407,12 +407,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_getTrainingsByUser_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GetTrainingsByUser(childComplexity, args["idUser"].(int)), true
+		return e.complexity.Query.GetTrainingsByUser(childComplexity), true
 
 	case "Training.endDate":
 		if e.complexity.Training.EndDate == nil {
@@ -420,13 +415,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Training.EndDate(childComplexity), true
-
-	case "Training.exercices":
-		if e.complexity.Training.Exercices == nil {
-			break
-		}
-
-		return e.complexity.Training.Exercices(childComplexity), true
 
 	case "Training.id":
 		if e.complexity.Training.ID == nil {
@@ -470,6 +458,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Training.Title(childComplexity), true
 
+	case "TrainingCustom.exercices":
+		if e.complexity.TrainingCustom.Exercices == nil {
+			break
+		}
+
+		return e.complexity.TrainingCustom.Exercices(childComplexity), true
+
+	case "TrainingCustom.self":
+		if e.complexity.TrainingCustom.Self == nil {
+			break
+		}
+
+		return e.complexity.TrainingCustom.Self(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -482,8 +484,8 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputMuscleAssesmentInput,
 		ec.unmarshalInputSignInInput,
 		ec.unmarshalInputSignUpInput,
-		ec.unmarshalInputTrainingCustom,
 		ec.unmarshalInputTrainingInput,
+		ec.unmarshalInputTrainingInputCustom,
 	)
 	first := true
 
@@ -662,7 +664,12 @@ extend type Mutation {
   logoff: String!
 }
 `, BuiltIn: false},
-	{Name: "../schemas/training.graphqls", Input: `type Training {
+	{Name: "../schemas/training.graphqls", Input: `type TrainingCustom {
+  self: Training!
+  exercices: [Exercices!]!
+}
+
+type Training {
   id: Int!
   idUser: Int!
   title: String!
@@ -670,7 +677,6 @@ extend type Mutation {
   initialDate: Time!
   endDate: Time!
   objetive: String!
-  exercices: [Exercices!]!
 }
 
 input TrainingInput {
@@ -683,19 +689,19 @@ input TrainingInput {
   objetive: String!
 }
 
-input TrainingCustom {
+input TrainingInputCustom {
   self: TrainingInput!
   exercices: [ExercicesInput!]!
   idsDelExercices: [Int!]!
 }
 
 extend type Query {
-  getTrainingsByUser(idUser: Int!): [Training!]!
-  getTrainingById(id: Int!): Training!
+  getTrainingsByUser: [TrainingCustom!]!
+  getTrainingById(id: Int!): TrainingCustom!
 }
 
 extend type Mutation {
-  upsertTraining(data: TrainingCustom!): Int!
+  upsertTraining(data: TrainingInputCustom!): Int!
   deleteTraining(id: Int!): Int!
 }
 `, BuiltIn: false},
@@ -784,10 +790,10 @@ func (ec *executionContext) field_Mutation_upsertMuscleAssesment_args(ctx contex
 func (ec *executionContext) field_Mutation_upsertTraining_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.TrainingCustom
+	var arg0 model.TrainingInputCustom
 	if tmp, ok := rawArgs["data"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
-		arg0, err = ec.unmarshalNTrainingCustom2gym_projectᚋmodelᚐTrainingCustom(ctx, tmp)
+		arg0, err = ec.unmarshalNTrainingInputCustom2gym_projectᚋmodelᚐTrainingInputCustom(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -868,21 +874,6 @@ func (ec *executionContext) field_Query_getTrainingById_args(ctx context.Context
 		}
 	}
 	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_getTrainingsByUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 int
-	if tmp, ok := rawArgs["idUser"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idUser"))
-		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["idUser"] = arg0
 	return args, nil
 }
 
@@ -2035,7 +2026,7 @@ func (ec *executionContext) _Mutation_upsertTraining(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpsertTraining(rctx, fc.Args["data"].(model.TrainingCustom))
+		return ec.resolvers.Mutation().UpsertTraining(rctx, fc.Args["data"].(model.TrainingInputCustom))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2394,7 +2385,7 @@ func (ec *executionContext) _Query_getTrainingsByUser(ctx context.Context, field
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetTrainingsByUser(rctx, fc.Args["idUser"].(int))
+		return ec.resolvers.Query().GetTrainingsByUser(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2406,12 +2397,12 @@ func (ec *executionContext) _Query_getTrainingsByUser(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Training)
+	res := resTmp.([]*model.TrainingCustom)
 	fc.Result = res
-	return ec.marshalNTraining2ᚕᚖgym_projectᚋmodelᚐTrainingᚄ(ctx, field.Selections, res)
+	return ec.marshalNTrainingCustom2ᚕᚖgym_projectᚋmodelᚐTrainingCustomᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getTrainingsByUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_getTrainingsByUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -2419,36 +2410,13 @@ func (ec *executionContext) fieldContext_Query_getTrainingsByUser(ctx context.Co
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Training_id(ctx, field)
-			case "idUser":
-				return ec.fieldContext_Training_idUser(ctx, field)
-			case "title":
-				return ec.fieldContext_Training_title(ctx, field)
-			case "subTitle":
-				return ec.fieldContext_Training_subTitle(ctx, field)
-			case "initialDate":
-				return ec.fieldContext_Training_initialDate(ctx, field)
-			case "endDate":
-				return ec.fieldContext_Training_endDate(ctx, field)
-			case "objetive":
-				return ec.fieldContext_Training_objetive(ctx, field)
+			case "self":
+				return ec.fieldContext_TrainingCustom_self(ctx, field)
 			case "exercices":
-				return ec.fieldContext_Training_exercices(ctx, field)
+				return ec.fieldContext_TrainingCustom_exercices(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Training", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TrainingCustom", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getTrainingsByUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -2479,9 +2447,9 @@ func (ec *executionContext) _Query_getTrainingById(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Training)
+	res := resTmp.(*model.TrainingCustom)
 	fc.Result = res
-	return ec.marshalNTraining2ᚖgym_projectᚋmodelᚐTraining(ctx, field.Selections, res)
+	return ec.marshalNTrainingCustom2ᚖgym_projectᚋmodelᚐTrainingCustom(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getTrainingById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2492,24 +2460,12 @@ func (ec *executionContext) fieldContext_Query_getTrainingById(ctx context.Conte
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "id":
-				return ec.fieldContext_Training_id(ctx, field)
-			case "idUser":
-				return ec.fieldContext_Training_idUser(ctx, field)
-			case "title":
-				return ec.fieldContext_Training_title(ctx, field)
-			case "subTitle":
-				return ec.fieldContext_Training_subTitle(ctx, field)
-			case "initialDate":
-				return ec.fieldContext_Training_initialDate(ctx, field)
-			case "endDate":
-				return ec.fieldContext_Training_endDate(ctx, field)
-			case "objetive":
-				return ec.fieldContext_Training_objetive(ctx, field)
+			case "self":
+				return ec.fieldContext_TrainingCustom_self(ctx, field)
 			case "exercices":
-				return ec.fieldContext_Training_exercices(ctx, field)
+				return ec.fieldContext_TrainingCustom_exercices(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type Training", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type TrainingCustom", field.Name)
 		},
 	}
 	defer func() {
@@ -2963,8 +2919,8 @@ func (ec *executionContext) fieldContext_Training_objetive(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Training_exercices(ctx context.Context, field graphql.CollectedField, obj *model.Training) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Training_exercices(ctx, field)
+func (ec *executionContext) _TrainingCustom_self(ctx context.Context, field graphql.CollectedField, obj *model.TrainingCustom) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TrainingCustom_self(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2977,7 +2933,67 @@ func (ec *executionContext) _Training_exercices(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Training().Exercices(rctx, obj)
+		return obj.Self, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.Training)
+	fc.Result = res
+	return ec.marshalNTraining2ᚖgym_projectᚋmodelᚐTraining(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TrainingCustom_self(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TrainingCustom",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_Training_id(ctx, field)
+			case "idUser":
+				return ec.fieldContext_Training_idUser(ctx, field)
+			case "title":
+				return ec.fieldContext_Training_title(ctx, field)
+			case "subTitle":
+				return ec.fieldContext_Training_subTitle(ctx, field)
+			case "initialDate":
+				return ec.fieldContext_Training_initialDate(ctx, field)
+			case "endDate":
+				return ec.fieldContext_Training_endDate(ctx, field)
+			case "objetive":
+				return ec.fieldContext_Training_objetive(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type Training", field.Name)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TrainingCustom_exercices(ctx context.Context, field graphql.CollectedField, obj *model.TrainingCustom) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TrainingCustom_exercices(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Exercices, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2994,12 +3010,12 @@ func (ec *executionContext) _Training_exercices(ctx context.Context, field graph
 	return ec.marshalNExercices2ᚕᚖgym_projectᚋmodelᚐExercicesᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Training_exercices(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_TrainingCustom_exercices(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "Training",
+		Object:     "TrainingCustom",
 		Field:      field,
-		IsMethod:   true,
-		IsResolver: true,
+		IsMethod:   false,
+		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "id":
@@ -5049,47 +5065,6 @@ func (ec *executionContext) unmarshalInputSignUpInput(ctx context.Context, obj i
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputTrainingCustom(ctx context.Context, obj interface{}) (model.TrainingCustom, error) {
-	var it model.TrainingCustom
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	fieldsInOrder := [...]string{"self", "exercices", "idsDelExercices"}
-	for _, k := range fieldsInOrder {
-		v, ok := asMap[k]
-		if !ok {
-			continue
-		}
-		switch k {
-		case "self":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("self"))
-			data, err := ec.unmarshalNTrainingInput2ᚖgym_projectᚋmodelᚐTrainingInput(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Self = data
-		case "exercices":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exercices"))
-			data, err := ec.unmarshalNExercicesInput2ᚕᚖgym_projectᚋmodelᚐExercicesInputᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.Exercices = data
-		case "idsDelExercices":
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idsDelExercices"))
-			data, err := ec.unmarshalNInt2ᚕintᚄ(ctx, v)
-			if err != nil {
-				return it, err
-			}
-			it.IdsDelExercices = data
-		}
-	}
-
-	return it, nil
-}
-
 func (ec *executionContext) unmarshalInputTrainingInput(ctx context.Context, obj interface{}) (model.TrainingInput, error) {
 	var it model.TrainingInput
 	asMap := map[string]interface{}{}
@@ -5153,6 +5128,47 @@ func (ec *executionContext) unmarshalInputTrainingInput(ctx context.Context, obj
 				return it, err
 			}
 			it.Objetive = data
+		}
+	}
+
+	return it, nil
+}
+
+func (ec *executionContext) unmarshalInputTrainingInputCustom(ctx context.Context, obj interface{}) (model.TrainingInputCustom, error) {
+	var it model.TrainingInputCustom
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"self", "exercices", "idsDelExercices"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "self":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("self"))
+			data, err := ec.unmarshalNTrainingInput2ᚖgym_projectᚋmodelᚐTrainingInput(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Self = data
+		case "exercices":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("exercices"))
+			data, err := ec.unmarshalNExercicesInput2ᚕᚖgym_projectᚋmodelᚐExercicesInputᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Exercices = data
+		case "idsDelExercices":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idsDelExercices"))
+			data, err := ec.unmarshalNInt2ᚕintᚄ(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.IdsDelExercices = data
 		}
 	}
 
@@ -5592,74 +5608,82 @@ func (ec *executionContext) _Training(ctx context.Context, sel ast.SelectionSet,
 		case "id":
 			out.Values[i] = ec._Training_id(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "idUser":
 			out.Values[i] = ec._Training_idUser(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "title":
 			out.Values[i] = ec._Training_title(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "subTitle":
 			out.Values[i] = ec._Training_subTitle(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "initialDate":
 			out.Values[i] = ec._Training_initialDate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "endDate":
 			out.Values[i] = ec._Training_endDate(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
 			}
 		case "objetive":
 			out.Values[i] = ec._Training_objetive(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
-				atomic.AddUint32(&out.Invalids, 1)
+				out.Invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var trainingCustomImplementors = []string{"TrainingCustom"}
+
+func (ec *executionContext) _TrainingCustom(ctx context.Context, sel ast.SelectionSet, obj *model.TrainingCustom) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, trainingCustomImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TrainingCustom")
+		case "self":
+			out.Values[i] = ec._TrainingCustom_self(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
 		case "exercices":
-			field := field
-
-			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
-				defer func() {
-					if r := recover(); r != nil {
-						ec.Error(ctx, ec.Recover(ctx, r))
-					}
-				}()
-				res = ec._Training_exercices(ctx, field, obj)
-				if res == graphql.Null {
-					atomic.AddUint32(&fs.Invalids, 1)
-				}
-				return res
+			out.Values[i] = ec._TrainingCustom_exercices(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
 			}
-
-			if field.Deferrable != nil {
-				dfs, ok := deferred[field.Deferrable.Label]
-				di := 0
-				if ok {
-					dfs.AddField(field)
-					di = len(dfs.Values) - 1
-				} else {
-					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
-					deferred[field.Deferrable.Label] = dfs
-				}
-				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
-					return innerFunc(ctx, dfs)
-				})
-
-				// don't run the out.Concurrently() call below
-				out.Values[i] = graphql.Null
-				continue
-			}
-
-			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -6280,11 +6304,21 @@ func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalNTraining2gym_projectᚋmodelᚐTraining(ctx context.Context, sel ast.SelectionSet, v model.Training) graphql.Marshaler {
-	return ec._Training(ctx, sel, &v)
+func (ec *executionContext) marshalNTraining2ᚖgym_projectᚋmodelᚐTraining(ctx context.Context, sel ast.SelectionSet, v *model.Training) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._Training(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNTraining2ᚕᚖgym_projectᚋmodelᚐTrainingᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Training) graphql.Marshaler {
+func (ec *executionContext) marshalNTrainingCustom2gym_projectᚋmodelᚐTrainingCustom(ctx context.Context, sel ast.SelectionSet, v model.TrainingCustom) graphql.Marshaler {
+	return ec._TrainingCustom(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTrainingCustom2ᚕᚖgym_projectᚋmodelᚐTrainingCustomᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.TrainingCustom) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -6308,7 +6342,7 @@ func (ec *executionContext) marshalNTraining2ᚕᚖgym_projectᚋmodelᚐTrainin
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNTraining2ᚖgym_projectᚋmodelᚐTraining(ctx, sel, v[i])
+			ret[i] = ec.marshalNTrainingCustom2ᚖgym_projectᚋmodelᚐTrainingCustom(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -6328,24 +6362,24 @@ func (ec *executionContext) marshalNTraining2ᚕᚖgym_projectᚋmodelᚐTrainin
 	return ret
 }
 
-func (ec *executionContext) marshalNTraining2ᚖgym_projectᚋmodelᚐTraining(ctx context.Context, sel ast.SelectionSet, v *model.Training) graphql.Marshaler {
+func (ec *executionContext) marshalNTrainingCustom2ᚖgym_projectᚋmodelᚐTrainingCustom(ctx context.Context, sel ast.SelectionSet, v *model.TrainingCustom) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._Training(ctx, sel, v)
-}
-
-func (ec *executionContext) unmarshalNTrainingCustom2gym_projectᚋmodelᚐTrainingCustom(ctx context.Context, v interface{}) (model.TrainingCustom, error) {
-	res, err := ec.unmarshalInputTrainingCustom(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
+	return ec._TrainingCustom(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNTrainingInput2ᚖgym_projectᚋmodelᚐTrainingInput(ctx context.Context, v interface{}) (*model.TrainingInput, error) {
 	res, err := ec.unmarshalInputTrainingInput(ctx, v)
 	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNTrainingInputCustom2gym_projectᚋmodelᚐTrainingInputCustom(ctx context.Context, v interface{}) (model.TrainingInputCustom, error) {
+	res, err := ec.unmarshalInputTrainingInputCustom(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {

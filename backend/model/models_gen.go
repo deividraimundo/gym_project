@@ -50,9 +50,8 @@ type SignUpInput struct {
 }
 
 type TrainingCustom struct {
-	Self            *TrainingInput    `json:"self"`
-	Exercices       []*ExercicesInput `json:"exercices"`
-	IdsDelExercices []int             `json:"idsDelExercices"`
+	Self      *Training    `json:"self"`
+	Exercices []*Exercices `json:"exercices"`
 }
 
 type TrainingInput struct {
@@ -63,4 +62,10 @@ type TrainingInput struct {
 	InitialDate time.Time `json:"initialDate"`
 	EndDate     time.Time `json:"endDate"`
 	Objetive    string    `json:"objetive"`
+}
+
+type TrainingInputCustom struct {
+	Self            *TrainingInput    `json:"self"`
+	Exercices       []*ExercicesInput `json:"exercices"`
+	IdsDelExercices []int             `json:"idsDelExercices"`
 }

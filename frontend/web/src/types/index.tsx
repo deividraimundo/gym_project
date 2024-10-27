@@ -1,21 +1,26 @@
 export type Exercices = {
-  id?: number;
-  idTraining?: number;
-  name?: string;
-  series?: number;
-  repetitions?: number;
-  rest?: number;
+  id: number;
+  idTraining: number;
+  name: string;
+  series: number;
+  repetitions: number;
+  rest: number;
 };
 
-export type Training = {
-  id?: number;
-  idUser?: number;
-  title?: string;
-  subTitle?: string;
-  initialDate?: any;
-  endDate?: any;
-  objetive?: string;
-  exercices?: Exercices[];
+export type TrainingInput = {
+  id: number;
+  idUser: number;
+  title: string;
+  subTitle: string;
+  initialDate: any;
+  endDate: any;
+  objetive: string;
+};
+
+export type TrainingInputCustom = {
+  self: TrainingInput;
+  exercices: Exercices[];
+  idsDelExercices: number[];
 };
 
 export type MuscleAssesment = {

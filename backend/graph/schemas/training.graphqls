@@ -1,3 +1,8 @@
+type TrainingCustom {
+  self: Training!
+  exercices: [Exercices!]!
+}
+
 type Training {
   id: Int!
   idUser: Int!
@@ -6,7 +11,6 @@ type Training {
   initialDate: Time!
   endDate: Time!
   objetive: String!
-  exercices: [Exercices!]!
 }
 
 input TrainingInput {
@@ -19,18 +23,18 @@ input TrainingInput {
   objetive: String!
 }
 
-input TrainingCustom {
+input TrainingInputCustom {
   self: TrainingInput!
   exercices: [ExercicesInput!]!
   idsDelExercices: [Int!]!
 }
 
 extend type Query {
-  getTrainingsByUser(idUser: Int!): [Training!]!
-  getTrainingById(id: Int!): Training!
+  getTrainingsByUser: [TrainingCustom!]!
+  getTrainingById(id: Int!): TrainingCustom!
 }
 
 extend type Mutation {
-  upsertTraining(data: TrainingCustom!): Int!
+  upsertTraining(data: TrainingInputCustom!): Int!
   deleteTraining(id: Int!): Int!
 }

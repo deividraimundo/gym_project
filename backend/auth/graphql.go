@@ -2,9 +2,9 @@ package auth
 
 import (
 	"context"
-	"fmt"
 	"gym_project/model"
 	"net/http"
+	"strings"
 
 	gql "github.com/99designs/gqlgen/graphql"
 )
@@ -32,9 +32,11 @@ func GetUserFromCtx(ctx context.Context) *model.User {
 
 func ResolverMiddleware() func(context.Context, gql.Resolver) (interface{}, error) {
 	return func(ctx context.Context, next gql.Resolver) (interface{}, error) {
+		fCtx := gql.GetFieldContext(ctx)
 		user := GetUserFromCtx(ctx)
-		if user == nil {
-			return nil, fmt.Errorf("necessário estar autenticado")
+		// permissão da query schema para o graphql
+		if user == nil && !strings.HasPrefix(fCtx.Path().String(), "__schema") {
+			// return nil, fmt.Errorf("necessário estar autenticado")
 		}
 		return next(ctx)
 	}

@@ -5,11 +5,14 @@ import {
   ApolloNextAppProvider,
   InMemoryCache,
 } from "@apollo/experimental-nextjs-app-support";
+import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
 
-const apolloUri =
-  typeof window === "undefined"
-    ? "http://localhost:8080/api/graphql"
-    : "/api/graphql";
+const apolloUri = "http://localhost:9000/graphql";
+
+if (process.env.NODE_ENV !== "production") {
+  loadDevMessages();
+  loadErrorMessages();
+}
 
 function makeClient() {
   const httpLink = new HttpLink({

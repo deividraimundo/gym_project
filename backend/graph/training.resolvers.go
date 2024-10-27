@@ -6,12 +6,18 @@ package graph
 
 import (
 	"context"
-	"gym_project/graph/generated"
+	"errors"
+	"gym_project/auth"
 	"gym_project/model"
 )
 
 // UpsertTraining is the resolver for the upsertTraining field.
-func (r *mutationResolver) UpsertTraining(ctx context.Context, data model.TrainingCustom) (int, error) {
+func (r *mutationResolver) UpsertTraining(ctx context.Context, data model.TrainingInputCustom) (int, error) {
+	user := auth.GetUserFromCtx(ctx)
+	if user == nil {
+		return 0, errors.New("usuario nao autenticado")
+	}
+	data.Self.IDUser = int(user.ID)
 	return r.svc.UpsertTraining(ctx, data)
 }
 
@@ -21,21 +27,15 @@ func (r *mutationResolver) DeleteTraining(ctx context.Context, id int) (int, err
 }
 
 // GetTrainingsByUser is the resolver for the getTrainingsByUser field.
-func (r *queryResolver) GetTrainingsByUser(ctx context.Context, idUser int) ([]*model.Training, error) {
-	return r.dao.SelectTrainingsByUser(ctx, idUser)
+func (r *queryResolver) GetTrainingsByUser(ctx context.Context) ([]*model.TrainingCustom, error) {
+	user := auth.GetUserFromCtx(ctx)
+	if user == nil {
+		return nil, errors.New("usuario nao autenticado")
+	}
+	return r.svc.GetTrainingsByUser(ctx, int(user.ID))
 }
 
 // GetTrainingByID is the resolver for the getTrainingById field.
-func (r *queryResolver) GetTrainingByID(ctx context.Context, id int) (*model.Training, error) {
-	return r.dao.GetTrainingById(ctx, id)
+func (r *queryResolver) GetTrainingByID(ctx context.Context, id int) (*model.TrainingCustom, error) {
+	return r.svc.GetTrainingByID(ctx, id)
 }
-
-// Exercices is the resolver for the exercices field.
-func (r *trainingResolver) Exercices(ctx context.Context, obj *model.Training) ([]*model.Exercices, error) {
-	return r.dao.GetExercicesByIdTraining(ctx, obj.ID)
-}
-
-// Training returns generated.TrainingResolver implementation.
-func (r *Resolver) Training() generated.TrainingResolver { return &trainingResolver{r} }
-
-type trainingResolver struct{ *Resolver }

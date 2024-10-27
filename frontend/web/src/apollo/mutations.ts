@@ -1,7 +1,7 @@
 import { gql } from "@apollo/client";
 
 export const MUTATION_UPSERT_TRAINING = gql`
-  mutation upsertTraining($data: TrainingCustom!) {
+  mutation upsertTraining($data: TrainingInputCustom!) {
     upsertTraining(data: $data)
   }
 `;

@@ -3,13 +3,15 @@ import { gql } from "@apollo/client";
 export const QUERY_TRAINING_BY_ID = gql`
   query trainingById($id: Int!) {
     getTrainingById(id: $id) {
-      id
-      idUser
-      title
-      subTitle
-      initialDate
-      endDate
-      objetive
+      self {
+        id
+        idUser
+        title
+        subTitle
+        initialDate
+        endDate
+        objetive
+      }
       exercices {
         id
         idTraining
@@ -23,15 +25,17 @@ export const QUERY_TRAINING_BY_ID = gql`
 `;
 
 export const QUERY_TRAINING_BY_ID_USER = gql`
-  query trainingByIdUser($idUser: Int!) {
-    getTrainingByIdUser(idUser: $id) {
-      id
-      idUser
-      title
-      subTitle
-      initialDate
-      endDate
-      objetive
+  query trainingByIdUser {
+    getTrainingsByUser {
+      self {
+        id
+        idUser
+        title
+        subTitle
+        initialDate
+        endDate
+        objetive
+      }
       exercices {
         id
         idTraining

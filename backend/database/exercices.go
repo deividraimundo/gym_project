@@ -11,7 +11,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-func UpsertExercices(ctx context.Context, tx *sqlx.Tx, data model.ExercicesInput) error {
+func UpsertExercices(ctx context.Context, tx *sqlx.Tx, data *model.ExercicesInput) error {
 	rowsAffected, err := UpdateExercices(ctx, tx, data)
 	if err != nil {
 		return err
@@ -29,37 +29,42 @@ func UpsertExercices(ctx context.Context, tx *sqlx.Tx, data model.ExercicesInput
 	return nil
 }
 
-func InsertExercices(ctx context.Context, tx *sqlx.Tx, data model.ExercicesInput) (err error) {
+func InsertExercices(ctx context.Context, tx *sqlx.Tx, data *model.ExercicesInput) (err error) {
+	id, err := GetNextSequence("exercicios_id_seq", tx)
+	if err != nil {
+		return err
+	}
+	data.ID = id
 	q := `
-		insert into treino (
+		insert into exercicios (
 			id_treino,
 			nome,
 			series,
 			repeticoes,
 			descanso
 		) values (
-			:id_treino,
-			:nome,
-			:series,
-			:repeticoes,
-			:descanso
+			$1,
+			$2,
+			$3,
+			$4,
+			$5
 		)
 	`
-	_, err = tx.NamedExecContext(ctx, q, data)
+	_, err = tx.ExecContext(ctx, q, data.IDTraining, data.Name, data.Series, data.Repetitions, data.Rest)
 	return
 }
 
-func UpdateExercices(ctx context.Context, tx *sqlx.Tx, data model.ExercicesInput) (rowsAffected int64, err error) {
+func UpdateExercices(ctx context.Context, tx *sqlx.Tx, data *model.ExercicesInput) (rowsAffected int64, err error) {
 	q := `
 		update exercicios set
-		  id_treino = :id_treino,
-			nome = :nome,
-			series = :series,
-			repeticoes = :repeticoes,
-			descanso = :descanso
-		where id = :id
+		  id_treino = $1,
+			nome = $2,
+			series = $3,
+			repeticoes = $4,
+			descanso = $5
+		where id = $6
 	`
-	row, err := tx.NamedExecContext(ctx, q, data)
+	row, err := tx.ExecContext(ctx, q, data.IDTraining, data.Name, data.Series, data.Repetitions, data.Rest, data.ID)
 	if err != nil {
 		return
 	}
@@ -71,8 +76,9 @@ func DeleteExercicesByIdTraining(ctx context.Context, tx *sqlx.Tx, idTraining in
 	q := `
 		delete
 		from exercicios
-		where id_treino = ?
+		where id_treino = $1
 	`
+	q = tx.Rebind(q)
 	_, err = tx.ExecContext(ctx, q, idTraining)
 	return
 }
