@@ -14,8 +14,8 @@
   text-details-primary
   text-lg
 
-  hover:text-details-hover
-  hover:border-details-hover
+  hover:text-errors-hover
+  hover:border-errors-hover
   
   cursor-pointer;
 }

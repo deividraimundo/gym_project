@@ -1,5 +1,11 @@
 import { gql } from "@apollo/client";
 
+export const LOGOFF = gql`
+  mutation logoff {
+    logoff
+  }
+`;
+
 export const MUTATION_UPSERT_TRAINING = gql`
   mutation upsertTraining($data: TrainingInputCustom!) {
     upsertTraining(data: $data)
