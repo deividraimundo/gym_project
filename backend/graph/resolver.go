@@ -12,8 +12,9 @@ type Resolver struct {
 	dao *database.DAO
 }
 
-func NewResolver(svc *services.Service) *Resolver {
+func NewResolver(svc *services.Service, dao *database.DAO) *Resolver {
 	return &Resolver{
 		svc: svc,
+		dao: dao,
 	}
 }

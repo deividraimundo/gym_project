@@ -1,13 +1,13 @@
 import React from "react";
 
 import { IoAdd } from "react-icons/io5";
+import { FaEdit, FaTrash } from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
 
 import Button from "@/components/Button";
-import { QUERY_TRAINING_BY_ID_USER } from "@/apollo/queries";
 import { TrainingInputCustom } from "@/types";
-import { FaEdit, FaTrash } from "react-icons/fa";
+import { QUERY_TRAINING_BY_ID_USER } from "@/apollo/queries";
 import { MUTATION_DELETE_TRAINING } from "@/apollo/mutations";
 
 const CardTraining: React.FC = () => {

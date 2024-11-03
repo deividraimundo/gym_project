@@ -23,18 +23,18 @@ export type TrainingInputCustom = {
   idsDelExercices: number[];
 };
 
-export type MuscleAssesment = {
-  id?: number;
-  idUser?: number;
-  avaliationDate?: any;
+export type MuscleAssesmentInput = {
+  id: number;
+  idUser: number;
+  avaliationDate: any;
   personalTrainer?: string;
-  bicepsLeft?: number;
-  bicepsRight?: number;
-  calfLeft?: number;
-  calfRight?: number;
-  thighLeft?: number;
-  thighRight?: number;
-  chest?: number;
-  forearmLeft?: number;
-  forearmRight?: number;
+  bicepsLeft: number;
+  bicepsRight: number;
+  calfLeft: number;
+  calfRight: number;
+  thighLeft: number;
+  thighRight: number;
+  chest: number;
+  forearmLeft: number;
+  forearmRight: number;
 };

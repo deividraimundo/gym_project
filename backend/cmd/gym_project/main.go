@@ -41,11 +41,11 @@ func main() {
 		log.Fatalf("nao pode criar tabelas: %v", err)
 	}
 
-	listen(cfg.Port, svc)
+	listen(cfg.Port, svc, dao)
 }
 
-func listen(port int, svc *services.Service) {
-	resolver := graph.NewResolver(svc)
+func listen(port int, svc *services.Service, dao *database.DAO) {
+	resolver := graph.NewResolver(svc, dao)
 	router := chi.NewRouter()
 	router.Use(cors.New(cors.Options{AllowCredentials: true}).Handler)
 

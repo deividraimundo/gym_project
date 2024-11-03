@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 
 import moment from "moment";
+import cloneDeep from "lodash/cloneDeep";
 import { IoAdd } from "react-icons/io5";
 import { FaTrash } from "react-icons/fa";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation, useQuery } from "@apollo/client";
-import cloneDeep from "lodash/cloneDeep";
 
 import "./styles.css";
 
@@ -83,7 +83,11 @@ const CadTraining: React.FC = () => {
     setForm(data);
   };
 
-  const back = () => {
+  const back = (ev?: React.MouseEvent) => {
+    if (!!ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
     router.push("/");
   };
 

@@ -47,3 +47,43 @@ export const QUERY_TRAINING_BY_ID_USER = gql`
     }
   }
 `;
+
+export const QUERY_MUSCLE_ASSESMENT_HISTORY_BY_USER = gql`
+  query getHistoryMuscleAssesmentByUser {
+    getHistoryMuscleAssesmentByUser {
+      id
+      idUser
+      avaliationDate
+      personalTrainer
+      bicepsLeft
+      bicepsRight
+      calfLeft
+      calfRight
+      thighLeft
+      thighRight
+      chest
+      forearmLeft
+      forearmRight
+    }
+  }
+`;
+
+export const QUERY_MUSCLE_ASSESMENT_BY_ID = gql`
+  query getMuscleAssesmentById($id: Int!) {
+    getMuscleAssesmentById(id: $id) {
+      id
+      idUser
+      avaliationDate
+      personalTrainer
+      bicepsLeft
+      bicepsRight
+      calfLeft
+      calfRight
+      thighLeft
+      thighRight
+      chest
+      forearmLeft
+      forearmRight
+    }
+  }
+`;

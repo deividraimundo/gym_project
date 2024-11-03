@@ -1,27 +1,61 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
-import { useRouter } from "next/navigation";
-import { useMutation } from "@apollo/client";
+import moment from "moment";
+import cloneDeep from "lodash/cloneDeep";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useMutation, useQuery } from "@apollo/client";
 
 import "./styles.css";
 
 import { MUTATION_UPSERT_MUSCLE_ASSESMENT } from "@/apollo/mutations";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
-import { MuscleAssesment } from "@/types";
+import { MuscleAssesmentInput } from "@/types";
+import { QUERY_MUSCLE_ASSESMENT_BY_ID } from "@/apollo/queries";
 
 const CadMuscleAssesment: React.FC = ({}) => {
-  const [form, setForm] = useState<MuscleAssesment>();
-  const [createMuscleAssesment] = useMutation(MUTATION_UPSERT_MUSCLE_ASSESMENT);
-
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const id = searchParams.get("id");
+  const [createMuscleAssesment] = useMutation(MUTATION_UPSERT_MUSCLE_ASSESMENT);
+  const [form, setForm] = useState<MuscleAssesmentInput>({
+    id: 0,
+    idUser: 0,
+    avaliationDate: new Date(),
+    bicepsLeft: 0,
+    bicepsRight: 0,
+    calfLeft: 0,
+    calfRight: 0,
+    chest: 0,
+    forearmLeft: 0,
+    forearmRight: 0,
+    thighLeft: 0,
+    thighRight: 0,
+    personalTrainer: "",
+  });
+
+  const { data, error, loading } = useQuery(QUERY_MUSCLE_ASSESMENT_BY_ID, {
+    fetchPolicy: "network-only",
+    variables: {
+      id: Number(id),
+    },
+  });
 
   const handleForm = (name: string, value: unknown) => {
-    setForm((old) => ({ ...old, [name]: value }));
+    const data: MuscleAssesmentInput = cloneDeep(form);
+    const newMuscleAssesment: MuscleAssesmentInput = {
+      ...data,
+      [name]: value,
+    };
+    setForm(newMuscleAssesment);
   };
 
-  const back = () => {
-    router.push("http://localhost:3000/");
+  const back = (ev?: React.MouseEvent) => {
+    if (!!ev) {
+      ev.preventDefault();
+      ev.stopPropagation();
+    }
+    router.push("/");
   };
 
   const handleSubmit = async (ev: React.FormEvent<HTMLFormElement>) => {
@@ -30,16 +64,34 @@ const CadMuscleAssesment: React.FC = ({}) => {
     try {
       await createMuscleAssesment({
         variables: {
-          data: {
-            form,
-          },
+          data: form,
         },
       });
-      setForm(undefined); // Limpa o input após o envio
+      setForm({
+        id: 0,
+        idUser: 0,
+        avaliationDate: new Date(),
+        bicepsLeft: 0,
+        bicepsRight: 0,
+        calfLeft: 0,
+        calfRight: 0,
+        chest: 0,
+        forearmLeft: 0,
+        forearmRight: 0,
+        thighLeft: 0,
+        thighRight: 0,
+        personalTrainer: "",
+      }); // Limpa o input após o envio
+      back();
     } catch (err) {
       console.error("Erro ao criar avalicao fisica:", err);
     }
   };
+
+  useEffect(() => {
+    if (loading || !!error || !data || form?.id !== 0) return;
+    setForm(data?.getMuscleAssesmentById);
+  }, [data, error, loading]);
 
   return (
     <div className="mt-10 main-container">
@@ -51,14 +103,16 @@ const CadMuscleAssesment: React.FC = ({}) => {
               text="Avaliador fisico"
               type="text"
               placeholder="Digite o nome do avaliador fisico..."
-              onChange={(ev) => handleForm("personalTrainer", ev.currentTarget)}
+              onChange={(ev) => handleForm("personalTrainer", ev.target.value)}
+              value={form?.personalTrainer ?? ""}
             />
 
             <Input
               text="Data avaliação"
               type="text"
-              onChange={(ev) => handleForm("avaliationDate", ev.currentTarget)}
+              onChange={(ev) => handleForm("avaliationDate", ev.target.value)}
               disabled
+              value={moment(form?.avaliationDate).format("DD/MM/YYYY") ?? ""}
             />
           </div>
           <div className="row">
@@ -66,14 +120,16 @@ const CadMuscleAssesment: React.FC = ({}) => {
               text="Biceps Esquerdo em centimentros (cm)"
               type="number"
               placeholder="Biceps esquerdo..."
-              onChange={(ev) => handleForm("bicepsLeft", ev.currentTarget)}
+              onChange={(ev) => handleForm("bicepsLeft", ev.target.value)}
+              value={form?.bicepsLeft ?? ""}
             />
 
             <Input
               text="Biceps Direito em centimentros (cm)"
               type="number"
               placeholder="Biceps Direito..."
-              onChange={(ev) => handleForm("bicepsRight", ev.currentTarget)}
+              onChange={(ev) => handleForm("bicepsRight", ev.target.value)}
+              value={form?.bicepsRight ?? ""}
             />
           </div>
           <div className="row">
@@ -81,14 +137,16 @@ const CadMuscleAssesment: React.FC = ({}) => {
               text="Panturrilha Esquerdo em centimentros (cm)"
               type="number"
               placeholder="Panturrilha esquerdo..."
-              onChange={(ev) => handleForm("calfLeft", ev.currentTarget)}
+              onChange={(ev) => handleForm("calfLeft", ev.target.value)}
+              value={form?.calfLeft ?? ""}
             />
 
             <Input
               text="Panturrilha Direito em centimentros (cm)"
               type="number"
               placeholder="Panturrilha Direito..."
-              onChange={(ev) => handleForm("calfRight", ev.currentTarget)}
+              onChange={(ev) => handleForm("calfRight", ev.target.value)}
+              value={form?.calfRight ?? ""}
             />
           </div>
           <div className="row">
@@ -96,14 +154,16 @@ const CadMuscleAssesment: React.FC = ({}) => {
               text="Coxa Esquerda em centimentros (cm)"
               type="number"
               placeholder="Coxa esquerda..."
-              onChange={(ev) => handleForm("thighLeft", ev.currentTarget)}
+              onChange={(ev) => handleForm("thighLeft", ev.target.value)}
+              value={form?.thighLeft ?? ""}
             />
 
             <Input
               text="Coxa Direita em centimentros (cm)"
               type="number"
               placeholder="Coxa Direita..."
-              onChange={(ev) => handleForm("thighRight", ev.currentTarget)}
+              onChange={(ev) => handleForm("thighRight", ev.target.value)}
+              value={form?.thighRight ?? ""}
             />
           </div>
           <div className="row">
@@ -111,14 +171,16 @@ const CadMuscleAssesment: React.FC = ({}) => {
               text="Antebraço Esquerdo em centimentros (cm)"
               type="number"
               placeholder="Antebraço esquerdo..."
-              onChange={(ev) => handleForm("forearmLeft", ev.currentTarget)}
+              onChange={(ev) => handleForm("forearmLeft", ev.target.value)}
+              value={form?.forearmLeft ?? ""}
             />
 
             <Input
               text="Antebraço Direito em centimentros (cm)"
               type="number"
               placeholder="Antebraço Direito..."
-              onChange={(ev) => handleForm("forearmRight", ev.currentTarget)}
+              onChange={(ev) => handleForm("forearmRight", ev.target.value)}
+              value={form?.forearmRight ?? ""}
             />
           </div>
           <div className="row">
@@ -126,7 +188,8 @@ const CadMuscleAssesment: React.FC = ({}) => {
               text="Peito em centimentros (cm)"
               type="number"
               placeholder="Peito..."
-              onChange={(ev) => handleForm("chest", ev.currentTarget)}
+              onChange={(ev) => handleForm("chest", ev.target.value)}
+              value={form?.chest ?? ""}
             />
           </div>
         </section>

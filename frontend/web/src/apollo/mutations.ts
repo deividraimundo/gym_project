@@ -13,7 +13,7 @@ export const MUTATION_DELETE_TRAINING = gql`
 `;
 
 export const MUTATION_UPSERT_MUSCLE_ASSESMENT = gql`
-  mutation upsertMuscleAssesment($data: MuscleAssesmentCustom!) {
+  mutation upsertMuscleAssesment($data: MuscleAssesmentInput!) {
     upsertMuscleAssesment(data: $data)
   }
 `;

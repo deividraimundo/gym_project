@@ -83,8 +83,8 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetCurrentMuscleAssesmentByUser func(childComplexity int, idUser int) int
-		GetHistoryMuscleAssesmentByUser func(childComplexity int, idUser int) int
+		GetCurrentMuscleAssesmentByUser func(childComplexity int) int
+		GetHistoryMuscleAssesmentByUser func(childComplexity int) int
 		GetMuscleAssesmentByID          func(childComplexity int, id int) int
 		GetTrainingByID                 func(childComplexity int, id int) int
 		GetTrainingsByUser              func(childComplexity int) int
@@ -116,8 +116,8 @@ type MutationResolver interface {
 	DeleteTraining(ctx context.Context, id int) (int, error)
 }
 type QueryResolver interface {
-	GetCurrentMuscleAssesmentByUser(ctx context.Context, idUser int) (*model.MuscleAssesment, error)
-	GetHistoryMuscleAssesmentByUser(ctx context.Context, idUser int) ([]*model.MuscleAssesment, error)
+	GetCurrentMuscleAssesmentByUser(ctx context.Context) (*model.MuscleAssesment, error)
+	GetHistoryMuscleAssesmentByUser(ctx context.Context) ([]*model.MuscleAssesment, error)
 	GetMuscleAssesmentByID(ctx context.Context, id int) (*model.MuscleAssesment, error)
 	GetTrainingsByUser(ctx context.Context) ([]*model.TrainingCustom, error)
 	GetTrainingByID(ctx context.Context, id int) (*model.TrainingCustom, error)
@@ -359,24 +359,14 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_getCurrentMuscleAssesmentByUser_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GetCurrentMuscleAssesmentByUser(childComplexity, args["idUser"].(int)), true
+		return e.complexity.Query.GetCurrentMuscleAssesmentByUser(childComplexity), true
 
 	case "Query.getHistoryMuscleAssesmentByUser":
 		if e.complexity.Query.GetHistoryMuscleAssesmentByUser == nil {
 			break
 		}
 
-		args, err := ec.field_Query_getHistoryMuscleAssesmentByUser_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GetHistoryMuscleAssesmentByUser(childComplexity, args["idUser"].(int)), true
+		return e.complexity.Query.GetHistoryMuscleAssesmentByUser(childComplexity), true
 
 	case "Query.getMuscleAssesmentById":
 		if e.complexity.Query.GetMuscleAssesmentByID == nil {
@@ -619,8 +609,8 @@ input ExercicesInput {
 
 input MuscleAssesmentInput {
   id: Int!
-  idUser: Int
-  avaliationDate: Time
+  idUser: Int!
+  avaliationDate: Time!
   personalTrainer: String
   bicepsLeft: Float!
   bicepsRight: Float!
@@ -634,8 +624,8 @@ input MuscleAssesmentInput {
 }
 
 extend type Query {
-  getCurrentMuscleAssesmentByUser(idUser: Int!): MuscleAssesment!
-  getHistoryMuscleAssesmentByUser(idUser: Int!): [MuscleAssesment!]!
+  getCurrentMuscleAssesmentByUser: MuscleAssesment!
+  getHistoryMuscleAssesmentByUser: [MuscleAssesment!]!
   getMuscleAssesmentById(id: Int!): MuscleAssesment!
 }
 
@@ -814,36 +804,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_getCurrentMuscleAssesmentByUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 int
-	if tmp, ok := rawArgs["idUser"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idUser"))
-		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["idUser"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_getHistoryMuscleAssesmentByUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 int
-	if tmp, ok := rawArgs["idUser"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idUser"))
-		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["idUser"] = arg0
 	return args, nil
 }
 
@@ -2136,7 +2096,7 @@ func (ec *executionContext) _Query_getCurrentMuscleAssesmentByUser(ctx context.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetCurrentMuscleAssesmentByUser(rctx, fc.Args["idUser"].(int))
+		return ec.resolvers.Query().GetCurrentMuscleAssesmentByUser(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2153,7 +2113,7 @@ func (ec *executionContext) _Query_getCurrentMuscleAssesmentByUser(ctx context.C
 	return ec.marshalNMuscleAssesment2ᚖgym_projectᚋmodelᚐMuscleAssesment(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getCurrentMuscleAssesmentByUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_getCurrentMuscleAssesmentByUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -2190,17 +2150,6 @@ func (ec *executionContext) fieldContext_Query_getCurrentMuscleAssesmentByUser(c
 			}
 			return nil, fmt.Errorf("no field named %q was found under type MuscleAssesment", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getCurrentMuscleAssesmentByUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -2219,7 +2168,7 @@ func (ec *executionContext) _Query_getHistoryMuscleAssesmentByUser(ctx context.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetHistoryMuscleAssesmentByUser(rctx, fc.Args["idUser"].(int))
+		return ec.resolvers.Query().GetHistoryMuscleAssesmentByUser(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2236,7 +2185,7 @@ func (ec *executionContext) _Query_getHistoryMuscleAssesmentByUser(ctx context.C
 	return ec.marshalNMuscleAssesment2ᚕᚖgym_projectᚋmodelᚐMuscleAssesmentᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getHistoryMuscleAssesmentByUser(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_getHistoryMuscleAssesmentByUser(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -2273,17 +2222,6 @@ func (ec *executionContext) fieldContext_Query_getHistoryMuscleAssesmentByUser(c
 			}
 			return nil, fmt.Errorf("no field named %q was found under type MuscleAssesment", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getHistoryMuscleAssesmentByUser_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -4895,14 +4833,14 @@ func (ec *executionContext) unmarshalInputMuscleAssesmentInput(ctx context.Conte
 			it.ID = data
 		case "idUser":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("idUser"))
-			data, err := ec.unmarshalOInt2ᚖint(ctx, v)
+			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
 			it.IDUser = data
 		case "avaliationDate":
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("avaliationDate"))
-			data, err := ec.unmarshalOTime2ᚖtimeᚐTime(ctx, v)
+			data, err := ec.unmarshalNTime2timeᚐTime(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -6661,22 +6599,6 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
-func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalInt(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalInt(*v)
-	return res
-}
-
 func (ec *executionContext) unmarshalOString2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -6690,22 +6612,6 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 		return graphql.Null
 	}
 	res := graphql.MarshalString(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOTime2ᚖtimeᚐTime(ctx context.Context, v interface{}) (*time.Time, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalTime(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOTime2ᚖtimeᚐTime(ctx context.Context, sel ast.SelectionSet, v *time.Time) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalTime(*v)
 	return res
 }
 

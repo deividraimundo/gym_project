@@ -6,12 +6,19 @@ package graph
 
 import (
 	"context"
+	"errors"
+	"gym_project/auth"
 	"gym_project/graph/generated"
 	"gym_project/model"
 )
 
 // UpsertMuscleAssesment is the resolver for the upsertMuscleAssesment field.
 func (r *mutationResolver) UpsertMuscleAssesment(ctx context.Context, data model.MuscleAssesmentInput) (int, error) {
+	user := auth.GetUserFromCtx(ctx)
+	if user == nil {
+		return 0, errors.New("usuario nao autenticado")
+	}
+	data.IDUser = int(user.ID)
 	return r.svc.UpsertMuscleAssesment(ctx, data)
 }
 
@@ -21,13 +28,21 @@ func (r *mutationResolver) DeleteMuscleAssesment(ctx context.Context, id int) (i
 }
 
 // GetCurrentMuscleAssesmentByUser is the resolver for the getCurrentMuscleAssesmentByUser field.
-func (r *queryResolver) GetCurrentMuscleAssesmentByUser(ctx context.Context, idUser int) (*model.MuscleAssesment, error) {
-	return r.dao.GetMuscleAssesmentByUser(ctx, idUser)
+func (r *queryResolver) GetCurrentMuscleAssesmentByUser(ctx context.Context) (*model.MuscleAssesment, error) {
+	user := auth.GetUserFromCtx(ctx)
+	if user == nil {
+		return nil, errors.New("usuario nao autenticado")
+	}
+	return r.dao.GetMuscleAssesmentByUser(ctx, int(user.ID))
 }
 
 // GetHistoryMuscleAssesmentByUser is the resolver for the getHistoryMuscleAssesmentByUser field.
-func (r *queryResolver) GetHistoryMuscleAssesmentByUser(ctx context.Context, idUser int) ([]*model.MuscleAssesment, error) {
-	return r.dao.SelectMuscleAssesmentByUser(ctx, idUser)
+func (r *queryResolver) GetHistoryMuscleAssesmentByUser(ctx context.Context) ([]*model.MuscleAssesment, error) {
+	user := auth.GetUserFromCtx(ctx)
+	if user == nil {
+		return nil, errors.New("usuario nao autenticado")
+	}
+	return r.dao.SelectMuscleAssesmentByUser(ctx, int(user.ID))
 }
 
 // GetMuscleAssesmentByID is the resolver for the getMuscleAssesmentById field.
