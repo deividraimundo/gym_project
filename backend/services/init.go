@@ -34,5 +34,11 @@ func (s *Service) InitDatabase() error {
 		return errors.New("error creating table exercicios: " + err.Error())
 	}
 
+	log.Println("Sincronizando tabela restricoes_medicas...")
+	err = s.dao.CreateTableMedicalRestrictions()
+	if err != nil {
+		return errors.New("error creating table restricoes_medicas: " + err.Error())
+	}
+
 	return nil
 }

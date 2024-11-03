@@ -38,3 +38,12 @@ export type MuscleAssesmentInput = {
   forearmLeft: number;
   forearmRight: number;
 };
+
+export type MedicalRestrictionsInput = {
+  id: number;
+  idUser: number;
+  smoker: boolean;
+  heartDisease: boolean;
+  surgery: boolean;
+  obs: string;
+};

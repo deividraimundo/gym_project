@@ -4,6 +4,7 @@ import "./styles.css";
 import CardUser from "./CardUser";
 import CardTraining from "./CardTraining";
 import CardPhysicalAssessment from "./CardPhysicalAssessment";
+import CardMedicalRestrictions from "./CardMedicalRestrictions";
 
 const Home: React.FC = () => {
   return (
@@ -12,6 +13,7 @@ const Home: React.FC = () => {
       <main className="container-card">
         <CardTraining />
         <CardPhysicalAssessment />
+        <CardMedicalRestrictions />
       </main>
     </div>
   );

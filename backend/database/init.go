@@ -104,3 +104,24 @@ func (d *DAO) CreateTableExercices() (err error) {
 	_, err = d.db.Exec(q)
 	return
 }
+
+func (d *DAO) CreateTableMedicalRestrictions() (err error) {
+	exists, err := d.existsTable("restricoes_medicas")
+	if err != nil || exists {
+		return
+	}
+
+	q := `
+		CREATE TABLE restricoes_medicas (
+				id SERIAL PRIMARY KEY,
+				id_usuario INT NOT NULL,
+				fumante BOOLEAN DEFAULT FALSE,
+				doenca_cardiaca BOOLEAN DEFAULT FALSE,
+				cirurgia BOOLEAN DEFAULT FALSE,
+				obs VARCHAR(500),
+				FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+		);
+	`
+	_, err = d.db.Exec(q)
+	return
+}

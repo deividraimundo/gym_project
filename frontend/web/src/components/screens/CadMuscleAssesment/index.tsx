@@ -7,11 +7,11 @@ import { useMutation, useQuery } from "@apollo/client";
 
 import "./styles.css";
 
-import { MUTATION_UPSERT_MUSCLE_ASSESMENT } from "@/apollo/mutations";
 import Input from "@/components/Input";
 import Button from "@/components/Button";
 import { MuscleAssesmentInput } from "@/types";
 import { QUERY_MUSCLE_ASSESMENT_BY_ID } from "@/apollo/queries";
+import { MUTATION_UPSERT_MUSCLE_ASSESMENT } from "@/apollo/mutations";
 
 const CadMuscleAssesment: React.FC = ({}) => {
   const router = useRouter();

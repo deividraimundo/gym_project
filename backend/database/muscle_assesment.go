@@ -78,6 +78,7 @@ func (d *DAO) DeleteMuscleAssesment(ctx context.Context, id int) (err error) {
 }
 
 func (d *DAO) GetMuscleAssesmentByUser(ctx context.Context, idUser int) (ma *model.MuscleAssesment, err error) {
+	muscleAssesment := model.MuscleAssesment{}
 	q := `
 		select id, 
 		       id_usuario, 
@@ -97,11 +98,11 @@ func (d *DAO) GetMuscleAssesmentByUser(ctx context.Context, idUser int) (ma *mod
 		order by data_avaliacao desc
 		limit 1
 	`
-	err = d.db.GetContext(ctx, &ma, q, idUser)
+	err = d.db.GetContext(ctx, &muscleAssesment, q, idUser)
 	if errors.Is(err, sql.ErrNoRows) {
 		err = nil
 	}
-	return
+	return &muscleAssesment, err
 }
 
 func (d *DAO) SelectMuscleAssesmentByUser(ctx context.Context, idUser int) (mas []*model.MuscleAssesment, err error) {

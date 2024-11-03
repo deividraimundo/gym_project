@@ -1,0 +1,27 @@
+type MedicalRestrictions {
+  id: Int!
+  idUser: Int!
+  smoker: Boolean!
+  heartDisease: Boolean!
+  surgery: Boolean!
+  obs: String!
+}
+
+input MedicalRestrictionsInput {
+  id: Int!
+  idUser: Int!
+  smoker: Boolean!
+  heartDisease: Boolean!
+  surgery: Boolean!
+  obs: String!
+}
+
+extend type Query {
+  getMedicalRestrictionsByUser: [MedicalRestrictions!]!
+  getMedicalRestrictionsById(id: Int!): MedicalRestrictions!
+}
+
+extend type Mutation {
+  upsertMedicalRestrictions(data: MedicalRestrictionsInput!): Int!
+  deleteMedicalRestrictions(id: Int!): Int!
+}

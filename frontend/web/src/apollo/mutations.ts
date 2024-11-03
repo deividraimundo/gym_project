@@ -23,3 +23,15 @@ export const MUTATION_DELETE_MUSCLE_ASSESMENT = gql`
     deleteMuscleAssesment(id: $id)
   }
 `;
+
+export const MUTATION_UPSERT_MEDICAL_RESTRICTIONS = gql`
+  mutation upsertMedicalRestrictions($data: MedicalRestrictionsInput!) {
+    upsertMedicalRestrictions(data: $data)
+  }
+`;
+
+export const MUTATION_DELETE_MEDICAL_RESTRICTIONS = gql`
+  mutation deleteMedicalRestrictions($id: Int!) {
+    deleteMedicalRestrictions(id: $id)
+  }
+`;

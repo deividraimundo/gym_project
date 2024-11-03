@@ -15,6 +15,15 @@ type ExercicesInput struct {
 	Rest        int    `json:"rest"`
 }
 
+type MedicalRestrictionsInput struct {
+	ID           int    `json:"id"`
+	IDUser       int    `json:"idUser"`
+	Smoker       bool   `json:"smoker"`
+	HeartDisease bool   `json:"heartDisease"`
+	Surgery      bool   `json:"surgery"`
+	Obs          string `json:"obs"`
+}
+
 type MuscleAssesmentInput struct {
 	ID              int       `json:"id"`
 	IDUser          int       `json:"idUser"`
@@ -26,9 +35,9 @@ type MuscleAssesmentInput struct {
 	CalfRight       float64   `json:"calfRight"`
 	ThighLeft       float64   `json:"thighLeft"`
 	ThighRight      float64   `json:"thighRight"`
+	Chest           float64   `json:"chest"`
 	ForearmLeft     float64   `json:"forearmLeft"`
 	ForearmRight    float64   `json:"forearmRight"`
-	Chest           float64   `json:"chest"`
 }
 
 type Mutation struct {

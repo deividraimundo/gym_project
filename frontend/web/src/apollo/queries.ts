@@ -87,3 +87,29 @@ export const QUERY_MUSCLE_ASSESMENT_BY_ID = gql`
     }
   }
 `;
+
+export const QUERY_MEDICAL_RESTRICTIONS_BY_USER = gql`
+  query getMedicalRestrictionsByUser {
+    getMedicalRestrictionsByUser {
+      id
+      idUser
+      smoker
+      heartDisease
+      surgery
+      obs
+    }
+  }
+`;
+
+export const QUERY_MEDICAL_RESTRICTIONS_BY_ID = gql`
+  query getMedicalRestrictionsById($id: Int!) {
+    getMedicalRestrictionsById(id: $id) {
+      id
+      idUser
+      smoker
+      heartDisease
+      surgery
+      obs
+    }
+  }
+`;
