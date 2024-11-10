@@ -2,7 +2,9 @@ package auth
 
 import (
 	"context"
+	"fmt"
 	"gym_project/model"
+	"log"
 	"net/http"
 	"strings"
 
@@ -35,42 +37,38 @@ func ResolverMiddleware() func(context.Context, gql.Resolver) (interface{}, erro
 		fCtx := gql.GetFieldContext(ctx)
 		user := GetUserFromCtx(ctx)
 		// permissão da query schema para o graphql
-		if user == nil && !strings.HasPrefix(fCtx.Path().String(), "__schema") {
-			// return nil, fmt.Errorf("necessário estar autenticado")
+		if user == nil && !strings.HasPrefix(fCtx.Path().String(), "__schema") && !strings.HasPrefix(fCtx.Path().String(), "signIn") && !strings.HasPrefix(fCtx.Path().String(), "signUp") {
+			return nil, fmt.Errorf("necessário estar autenticado")
 		}
 		return next(ctx)
 	}
 }
 
-func Middleware() func(http.Handler) http.Handler {
-	return func(next http.Handler) http.Handler {
-		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			// salva o responsewriter no context
-			ctx := context.WithValue(r.Context(), rwCtxKey, w)
-			r = r.WithContext(ctx)
+func Middleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// salva o responsewriter no context
+		ctx := context.WithValue(r.Context(), rwCtxKey, w)
+		r = r.WithContext(ctx)
 
-			c, err := r.Cookie(AuthCookieKey)
-
-			// Allow unauthenticated users in
-			if err != nil || c == nil {
-				next.ServeHTTP(w, r)
-				return
-			}
-
-			// user, err := a.ValidateToken(c.Value)
-			// if err != nil {
-			// 	log.Printf("usuário inválido token [%s], erro: [%v]", c.Value, err)
-			// 	ClearAuthToken(w)
-			// 	next.ServeHTTP(w, r)
-			// 	return
-			// }
-
-			// put user in context
-			// ctx = context.WithValue(ctx, userCtxKey, user)
-
-			// and call the next with our new context
-			r = r.WithContext(ctx)
+		c, err := r.Cookie(AuthCookieKey)
+		if err != nil || c == nil {
 			next.ServeHTTP(w, r)
-		})
-	}
+			return
+		}
+
+		user, err := validateToken(c.Value)
+		if err != nil {
+			log.Printf("usuário inválido token [%s], erro: [%v]", c.Value, err)
+			ClearAuthToken(w)
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// put user in context
+		ctx = context.WithValue(ctx, userCtxKey, user)
+
+		// and call the next with our new context
+		r = r.WithContext(ctx)
+		next.ServeHTTP(w, r)
+	})
 }

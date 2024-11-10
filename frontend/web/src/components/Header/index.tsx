@@ -1,6 +1,7 @@
 import React from "react";
 
 import { CgLogOff } from "react-icons/cg";
+import { useRouter } from "next/navigation";
 import { useMutation } from "@apollo/client";
 
 import "./styles.css";
@@ -11,9 +12,11 @@ import { LOGOFF } from "@/apollo/mutations";
 
 const Header: React.FC = () => {
   const [logoff] = useMutation(LOGOFF);
+  const router = useRouter();
 
   const handleLogoff = () => {
     logoff();
+    router.push("/");
   };
 
   return (

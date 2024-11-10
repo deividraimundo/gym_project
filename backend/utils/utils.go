@@ -7,3 +7,7 @@ func ToAnyArray[T any](in []T) []any {
 	}
 	return res
 }
+
+func Ptr[T any](value T) *T {
+	return &value
+}

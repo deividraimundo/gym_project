@@ -60,6 +60,7 @@ func listen(port int, svc *services.Service, dao *database.DAO) {
 		KeepAlivePingInterval: 10 * time.Second,
 	})
 
+	router.Use(auth.Middleware)
 	router.Handle("/graphql", srv)
 	router.Handle("/", playground.Handler("GraphQL playground", "/graphql"))
 	srv.AroundFields(auth.ResolverMiddleware())

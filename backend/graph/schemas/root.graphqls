@@ -1,15 +1,27 @@
 scalar Time
 
+type User {
+  id: Int!
+  name: String!
+  lastName: String!
+  email: String!
+}
+
 input SignInInput {
   username: String!
   password: String!
 }
 
 input SignUpInput {
+  id: Int!
   name: String!
   lastName: String!
   email: String!
   password: String!
+}
+
+extend type Query {
+  me: User
 }
 
 extend type Mutation {

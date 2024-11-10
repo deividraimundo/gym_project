@@ -1,5 +1,6 @@
 "use client";
 import { HttpLink } from "@apollo/client";
+import { onError } from "@apollo/client/link/error";
 import {
   ApolloClient,
   ApolloNextAppProvider,
@@ -15,9 +16,16 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 function makeClient() {
-  const httpLink = new HttpLink({
-    uri: apolloUri,
-  });
+  const httpLink = onError((e) => {
+    const msg = e.graphQLErrors?.[0]?.message;
+    if (msg === "Necessário estar logado" || msg === "RELOAD") {
+      window.location.href = "/";
+    }
+  }).concat(
+    new HttpLink({
+      uri: apolloUri,
+    })
+  );
 
   return new ApolloClient({
     cache: new InMemoryCache(),

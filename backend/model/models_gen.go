@@ -52,6 +52,7 @@ type SignInInput struct {
 }
 
 type SignUpInput struct {
+	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	LastName string `json:"lastName"`
 	Email    string `json:"email"`

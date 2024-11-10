@@ -1,20 +1,35 @@
-import React from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 
 import Input from "@/components/Input";
+import { SignUpInput } from "@/app/(auth)/sign-up/layout";
 
-const Step3: React.FC = () => {
+interface Step2Props {
+  data: SignUpInput;
+  handleData: (name: string, value: string) => void;
+  confirmPassword: string;
+  setConfirmPassword: Dispatch<SetStateAction<string>>;
+}
+
+const Step3: React.FC<Step2Props> = ({
+  data,
+  handleData,
+  confirmPassword,
+  setConfirmPassword,
+}) => {
   return (
     <div className="flex flex-col gap-5">
       <Input
         text="Senha"
         type="password"
-        onChange={() => null}
-        placeholder="Seu senha"
+        value={data?.password ?? ""}
+        onChange={(ev) => handleData("password", ev.target.value)}
+        placeholder="Sua senha"
       />
       <Input
         text="Repita a senha"
         type="password"
-        onChange={() => null}
+        value={confirmPassword ?? ""}
+        onChange={(ev) => setConfirmPassword(ev.target.value)}
         placeholder="Sua senha"
       />
     </div>

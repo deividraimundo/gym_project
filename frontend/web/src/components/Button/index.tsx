@@ -10,6 +10,7 @@ interface ButtonProps {
   onClick: (ev: React.MouseEvent) => void;
   width?: string;
   color?: string;
+  type?: "submit" | "reset" | "button" | undefined;
 }
 
 const Button: React.FC<ButtonProps> = ({
@@ -18,6 +19,7 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   width = "",
   color = "default",
+  type,
 }) => {
   const handleClick = (ev: React.MouseEvent) => {
     if (disabled) return;
@@ -37,6 +39,7 @@ const Button: React.FC<ButtonProps> = ({
         "container-button button-text button-transition button-disabled",
         classColor
       )}
+      type={type}
       onClick={handleClick}
       style={{ width: width }}
       disabled={disabled}

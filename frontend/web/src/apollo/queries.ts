@@ -1,5 +1,16 @@
 import { gql } from "@apollo/client";
 
+export const ME = gql`
+  query me {
+    me {
+      id
+      name
+      lastName
+      email
+    }
+  }
+`;
+
 export const QUERY_TRAINING_BY_ID = gql`
   query trainingById($id: Int!) {
     getTrainingById(id: $id) {

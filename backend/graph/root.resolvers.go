@@ -7,8 +7,10 @@ package graph
 import (
 	"context"
 	"errors"
+	"fmt"
 	"gym_project/auth"
 	"gym_project/model"
+	"strconv"
 )
 
 // SignIn is the resolver for the signIn field.
@@ -18,16 +20,14 @@ func (r *mutationResolver) SignIn(ctx context.Context, data model.SignInInput) (
 		return "", errors.New("ResponseWriter not injected in context")
 	}
 
-	// user, err :=r.dao.GetUser(data.Username, data.Password)
-	// if err != nil {
-	// 	return "", err
-	// }
+	user, err := r.dao.GetUser(data.Username, data.Password)
+	if err != nil {
+		return "", err
+	}
 
-	// TODO: Criar o token
-	auth.SetToken(w, "")
-
-	// TODO: retornar token
-	return "", nil
+	token := strconv.Itoa(int(user.ID))
+	auth.SetToken(w, token)
+	return token, nil
 }
 
 // SignUp is the resolver for the signUp field.
@@ -37,12 +37,14 @@ func (r *mutationResolver) SignUp(ctx context.Context, data model.SignUpInput) (
 		return "", errors.New("ResponseWriter not injected in context")
 	}
 
-	// TODO: Cadastrar usuário no banco
-	// TODO: Criar o token
-	auth.SetToken(w, "")
+	err := r.svc.InsertUser(ctx, &data)
+	if err != nil {
+		return "", fmt.Errorf("erro ao cadastrar o usuário: %w", err)
+	}
 
-	// TODO: retornar token
-	return "", nil
+	token := strconv.Itoa(data.ID)
+	auth.SetToken(w, token)
+	return token, nil
 }
 
 // Logoff is the resolver for the logoff field.
@@ -54,6 +56,19 @@ func (r *mutationResolver) Logoff(ctx context.Context) (string, error) {
 
 	// salva o cookie já vencido para ser removido
 	auth.ClearAuthToken(w)
-
 	return "usuário deslogado com sucesso", nil
+}
+
+// Me is the resolver for the me field.
+func (r *queryResolver) Me(ctx context.Context) (*model.User, error) {
+	user := auth.GetUserFromCtx(ctx)
+	if user != nil {
+		usr := &model.User{}
+		usr.ID = user.ID
+		usr.Name = user.Name
+		usr.LastName = user.LastName
+		usr.Email = user.Email
+		return usr, nil
+	}
+	return nil, nil
 }

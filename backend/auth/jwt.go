@@ -1,7 +1,10 @@
 package auth
 
 import (
+	"errors"
+	"fmt"
 	"gym_project/model"
+	"gym_project/utils"
 	"net/http"
 	"time"
 
@@ -45,4 +48,30 @@ func ClearAuthToken(w http.ResponseWriter) {
 	expiration := time.Now().Add(-1 * 24 * time.Hour)
 	cookie := http.Cookie{Name: AuthCookieKey, Value: "", Expires: expiration, HttpOnly: true, Path: "/"}
 	http.SetCookie(w, &cookie)
+}
+
+// validateToken valida o token e retorna o usuario
+func validateToken(t string) (*model.User, error) {
+	if t == "" {
+		return nil, errors.New("token não informado")
+	}
+
+	token, _ := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+			return nil, fmt.Errorf("there was an error")
+		}
+		return utils.Ptr(keyJwt), nil
+	})
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		var user = &model.User{
+			ID:       claims[idKey].(int64),
+			Name:     claims[nameKey].(string),
+			LastName: claims[lastNameKey].(string),
+			Email:    claims[emailKey].(string),
+		}
+		return user, nil
+	}
+
+	return nil, errors.New("token inválido")
 }

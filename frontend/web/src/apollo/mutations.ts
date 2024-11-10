@@ -1,8 +1,20 @@
 import { gql } from "@apollo/client";
 
+export const SIGN_IN = gql`
+  mutation signIn($data: SignInInput!) {
+    signIn(data: $data)
+  }
+`;
+
 export const LOGOFF = gql`
   mutation logoff {
     logoff
+  }
+`;
+
+export const SIGN_UP = gql`
+  mutation signUp($data: SignUpInput!) {
+    signUp(data: $data)
   }
 `;
 

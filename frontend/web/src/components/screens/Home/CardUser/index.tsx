@@ -3,8 +3,10 @@ import React from "react";
 // import { BiEditAlt } from "react-icons/bi";
 
 import "./styles.css";
+import useMe from "@/lib/use-me";
 
 const CardUser: React.FC = () => {
+  const me = useMe();
   return (
     <aside className="card-container aside-card-user flex flex-col">
       <header className="header-card-user">
@@ -18,13 +20,13 @@ const CardUser: React.FC = () => {
             <img src="/logo.png" />
           </div>
           <div className="flex flex-col items-center gap-2">
-            <p className="name-card-user">Nome do usuário</p>
-            <p>123456789</p>
+            <p className="name-card-user">{`${me?.me?.name} ${me?.me?.lastName}`}</p>
+            <p>{me?.me?.email}</p>
           </div>
         </div>
       </main>
       <footer className="footer-card-user">
-        <p>Deixou de ser frango em 25/08/2024</p>
+        <p>Deixou de ser frango!</p>
       </footer>
     </aside>
   );
