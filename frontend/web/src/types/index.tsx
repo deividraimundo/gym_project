@@ -37,6 +37,8 @@ export type MuscleAssesmentInput = {
   chest: number;
   forearmLeft: number;
   forearmRight: number;
+  height: number;
+  weight: number;
 };
 
 export type MedicalRestrictionsInput = {

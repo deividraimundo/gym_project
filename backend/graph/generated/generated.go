@@ -74,11 +74,13 @@ type ComplexityRoot struct {
 		Chest           func(childComplexity int) int
 		ForearmLeft     func(childComplexity int) int
 		ForearmRight    func(childComplexity int) int
+		Height          func(childComplexity int) int
 		ID              func(childComplexity int) int
 		IDUser          func(childComplexity int) int
 		PersonalTrainer func(childComplexity int) int
 		ThighLeft       func(childComplexity int) int
 		ThighRight      func(childComplexity int) int
+		Weight          func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -308,6 +310,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.MuscleAssesment.ForearmRight(childComplexity), true
 
+	case "MuscleAssesment.height":
+		if e.complexity.MuscleAssesment.Height == nil {
+			break
+		}
+
+		return e.complexity.MuscleAssesment.Height(childComplexity), true
+
 	case "MuscleAssesment.id":
 		if e.complexity.MuscleAssesment.ID == nil {
 			break
@@ -342,6 +351,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.MuscleAssesment.ThighRight(childComplexity), true
+
+	case "MuscleAssesment.weight":
+		if e.complexity.MuscleAssesment.Weight == nil {
+			break
+		}
+
+		return e.complexity.MuscleAssesment.Weight(childComplexity), true
 
 	case "Mutation.deleteMedicalRestrictions":
 		if e.complexity.Mutation.DeleteMedicalRestrictions == nil {
@@ -780,6 +796,8 @@ extend type Mutation {
   chest: Float!
   forearmLeft: Float!
   forearmRight: Float!
+  height: Float!
+  weight: Float!
 }
 
 input MuscleAssesmentInput {
@@ -796,6 +814,8 @@ input MuscleAssesmentInput {
   chest: Float!
   forearmLeft: Float!
   forearmRight: Float!
+  height: Float!
+  weight: Float!
 }
 
 extend type Query {
@@ -2204,6 +2224,94 @@ func (ec *executionContext) fieldContext_MuscleAssesment_forearmRight(_ context.
 	return fc, nil
 }
 
+func (ec *executionContext) _MuscleAssesment_height(ctx context.Context, field graphql.CollectedField, obj *model.MuscleAssesment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MuscleAssesment_height(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Height, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MuscleAssesment_height(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MuscleAssesment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _MuscleAssesment_weight(ctx context.Context, field graphql.CollectedField, obj *model.MuscleAssesment) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_MuscleAssesment_weight(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Weight, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_MuscleAssesment_weight(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "MuscleAssesment",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_upsertMedicalRestrictions(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_upsertMedicalRestrictions(ctx, field)
 	if err != nil {
@@ -2880,6 +2988,10 @@ func (ec *executionContext) fieldContext_Query_getCurrentMuscleAssesmentByUser(_
 				return ec.fieldContext_MuscleAssesment_forearmLeft(ctx, field)
 			case "forearmRight":
 				return ec.fieldContext_MuscleAssesment_forearmRight(ctx, field)
+			case "height":
+				return ec.fieldContext_MuscleAssesment_height(ctx, field)
+			case "weight":
+				return ec.fieldContext_MuscleAssesment_weight(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type MuscleAssesment", field.Name)
 		},
@@ -2952,6 +3064,10 @@ func (ec *executionContext) fieldContext_Query_getHistoryMuscleAssesmentByUser(_
 				return ec.fieldContext_MuscleAssesment_forearmLeft(ctx, field)
 			case "forearmRight":
 				return ec.fieldContext_MuscleAssesment_forearmRight(ctx, field)
+			case "height":
+				return ec.fieldContext_MuscleAssesment_height(ctx, field)
+			case "weight":
+				return ec.fieldContext_MuscleAssesment_weight(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type MuscleAssesment", field.Name)
 		},
@@ -3024,6 +3140,10 @@ func (ec *executionContext) fieldContext_Query_getMuscleAssesmentById(ctx contex
 				return ec.fieldContext_MuscleAssesment_forearmLeft(ctx, field)
 			case "forearmRight":
 				return ec.fieldContext_MuscleAssesment_forearmRight(ctx, field)
+			case "height":
+				return ec.fieldContext_MuscleAssesment_height(ctx, field)
+			case "weight":
+				return ec.fieldContext_MuscleAssesment_weight(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type MuscleAssesment", field.Name)
 		},
@@ -5839,7 +5959,7 @@ func (ec *executionContext) unmarshalInputMuscleAssesmentInput(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"id", "idUser", "avaliationDate", "personalTrainer", "bicepsLeft", "bicepsRight", "calfLeft", "calfRight", "thighLeft", "thighRight", "chest", "forearmLeft", "forearmRight"}
+	fieldsInOrder := [...]string{"id", "idUser", "avaliationDate", "personalTrainer", "bicepsLeft", "bicepsRight", "calfLeft", "calfRight", "thighLeft", "thighRight", "chest", "forearmLeft", "forearmRight", "height", "weight"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -5937,6 +6057,20 @@ func (ec *executionContext) unmarshalInputMuscleAssesmentInput(ctx context.Conte
 				return it, err
 			}
 			it.ForearmRight = data
+		case "height":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("height"))
+			data, err := ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Height = data
+		case "weight":
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("weight"))
+			data, err := ec.unmarshalNFloat2float64(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Weight = data
 		}
 	}
 
@@ -6348,6 +6482,16 @@ func (ec *executionContext) _MuscleAssesment(ctx context.Context, sel ast.Select
 			}
 		case "forearmRight":
 			out.Values[i] = ec._MuscleAssesment_forearmRight(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "height":
+			out.Values[i] = ec._MuscleAssesment_height(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "weight":
+			out.Values[i] = ec._MuscleAssesment_weight(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}

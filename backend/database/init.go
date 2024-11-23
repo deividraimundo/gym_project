@@ -55,6 +55,8 @@ func (d *DAO) CreateTableMuscleAssesment() (err error) {
 			torax DECIMAL(5, 2),
 			antebraco_esquerda DECIMAL(5, 2),
 			antebraco_direita DECIMAL(5, 2),
+			altura DECIMAL(5, 2),
+			peso DECIMAL(5, 2),
     	FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
 		);
 	`

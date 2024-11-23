@@ -10,6 +10,7 @@ import Button from "@/components/Button";
 import { MuscleAssesmentInput } from "@/types";
 import { QUERY_MUSCLE_ASSESMENT_HISTORY_BY_USER } from "@/apollo/queries";
 import { MUTATION_DELETE_MUSCLE_ASSESMENT } from "@/apollo/mutations";
+import { calcularIMC } from "@/utils/utils";
 
 const CardPhysicalAssessment: React.FC = () => {
   const router = useRouter();
@@ -92,15 +93,20 @@ const CardPhysicalAssessment: React.FC = () => {
               </div>
             </header>
             <ol className="p-4 flex flex-col gap-2 list-disc list-inside">
-              <li>Peito: {it.chest}</li>
-              <li>Biceps Esquerdo: {it.bicepsLeft}</li>
-              <li>Biceps Direito: {it.bicepsRight}</li>
-              <li>Panturrilha Esquerda: {it.calfLeft}</li>
-              <li>Panturrilha Direita: {it.calfRight}</li>
-              <li>Coxa Esquerdo: {it.thighLeft}</li>
-              <li>Coxa Direito: {it.thighRight}</li>
-              <li>Antebraço Esquerdo: {it.forearmLeft}</li>
-              <li>Antebraço Direito: {it.forearmRight}</li>
+              <li>Altura: {it.height} cm</li>
+              <li>Peso: {it.weight} kg</li>
+              <li>Peito: {it.chest} cm</li>
+              <li>Biceps Esquerdo: {it.bicepsLeft} cm</li>
+              <li>Biceps Direito: {it.bicepsRight} cm</li>
+              <li>Panturrilha Esquerda: {it.calfLeft} cm</li>
+              <li>Panturrilha Direita: {it.calfRight} cm</li>
+              <li>Coxa Esquerdo: {it.thighLeft} cm</li>
+              <li>Coxa Direito: {it.thighRight} cm</li>
+              <li>Antebraço Esquerdo: {it.forearmLeft} cm</li>
+              <li>Antebraço Direito: {it.forearmRight} cm</li>
+              <li className="text-details-primary">
+                {calcularIMC(it.weight, it.height)}
+              </li>
             </ol>
           </div>
         ))

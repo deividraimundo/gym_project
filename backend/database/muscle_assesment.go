@@ -21,7 +21,9 @@ func (d *DAO) InsertMuscleAssesment(ctx context.Context, data model.MuscleAssesm
 			coxa_direita,
 			torax,
 			antebraco_esquerda,
-			antebraco_direita
+			antebraco_direita,
+			altura,
+			peso
 		) values (
 		  $1,
 			$2,
@@ -34,10 +36,12 @@ func (d *DAO) InsertMuscleAssesment(ctx context.Context, data model.MuscleAssesm
 			$9,
 			$10,
 			$11,
-			$12
+			$12,
+			$13,
+			$14
     ) 
 	`
-	_, err = d.db.ExecContext(ctx, q, data.IDUser, data.AvaliationDate, data.PersonalTrainer, data.BicepsLeft, data.BicepsRight, data.CalfLeft, data.CalfRight, data.ThighLeft, data.ThighRight, data.Chest, data.ForearmLeft, data.ForearmRight)
+	_, err = d.db.ExecContext(ctx, q, data.IDUser, data.AvaliationDate, data.PersonalTrainer, data.BicepsLeft, data.BicepsRight, data.CalfLeft, data.CalfRight, data.ThighLeft, data.ThighRight, data.Chest, data.ForearmLeft, data.ForearmRight, data.Height, data.Weight)
 	return
 }
 
@@ -55,10 +59,12 @@ func (d *DAO) UpdateMuscleAssesment(ctx context.Context, data model.MuscleAssesm
 			coxa_direita = $9,
 			torax = $10,
 			antebraco_esquerda = $11,
-			antebraco_direita = $12
-		where id = $13
+			antebraco_direita = $12,
+			altura = $13,
+			peso = $14
+		where id = $15
 	`
-	row, err := d.db.ExecContext(ctx, q, data.IDUser, data.AvaliationDate, data.PersonalTrainer, data.BicepsLeft, data.BicepsRight, data.CalfLeft, data.CalfRight, data.ThighLeft, data.ThighRight, data.Chest, data.ForearmLeft, data.ForearmRight, data.ID)
+	row, err := d.db.ExecContext(ctx, q, data.IDUser, data.AvaliationDate, data.PersonalTrainer, data.BicepsLeft, data.BicepsRight, data.CalfLeft, data.CalfRight, data.ThighLeft, data.ThighRight, data.Chest, data.ForearmLeft, data.ForearmRight, data.Height, data.Weight, data.ID)
 	if err != nil {
 		return
 	}
@@ -92,7 +98,9 @@ func (d *DAO) GetMuscleAssesmentByUser(ctx context.Context, idUser int) (ma *mod
 					 coxa_direita, 
 					 torax, 
 					 antebraco_esquerda, 
-					 antebraco_direita
+					 antebraco_direita,
+					 altura,
+					 peso
 		from avaliacao_fisica
 		where id_usuario = $1
 		order by data_avaliacao desc
@@ -119,7 +127,9 @@ func (d *DAO) SelectMuscleAssesmentByUser(ctx context.Context, idUser int) (mas 
 					 coxa_direita, 
 					 torax, 
 					 antebraco_esquerda, 
-					 antebraco_direita
+					 antebraco_direita,
+					 altura,
+					 peso
 		from avaliacao_fisica
 		where id_usuario = $1
 		order by data_avaliacao desc
@@ -146,7 +156,9 @@ func (d *DAO) GetMuscleAssesmentByID(ctx context.Context, id int) (ma *model.Mus
 					 coxa_direita, 
 					 torax, 
 					 antebraco_esquerda, 
-					 antebraco_direita
+					 antebraco_direita,
+					 altura,
+					 peso
 		from avaliacao_fisica
 		where id = $1
 	`

@@ -16,4 +16,6 @@ type MuscleAssesment struct {
 	Chest           float64   `json:"chest" db:"torax"`
 	ForearmLeft     float64   `json:"forearmLeft" db:"antebraco_esquerda"`
 	ForearmRight    float64   `json:"forearmRight" db:"antebraco_direita"`
+	Height          float64   `json:"height" db:"altura"`
+	Weight          float64   `json:"weight" db:"peso"`
 }

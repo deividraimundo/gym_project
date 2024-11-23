@@ -75,6 +75,8 @@ export const QUERY_MUSCLE_ASSESMENT_HISTORY_BY_USER = gql`
       chest
       forearmLeft
       forearmRight
+      height
+      weight
     }
   }
 `;
@@ -95,6 +97,8 @@ export const QUERY_MUSCLE_ASSESMENT_BY_ID = gql`
       chest
       forearmLeft
       forearmRight
+      height
+      weight
     }
   }
 `;

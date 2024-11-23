@@ -32,6 +32,8 @@ const CadMuscleAssesment: React.FC = ({}) => {
     thighLeft: 0,
     thighRight: 0,
     personalTrainer: "",
+    height: 0,
+    weight: 0,
   });
 
   const { data, error, loading } = useQuery(QUERY_MUSCLE_ASSESMENT_BY_ID, {
@@ -81,6 +83,8 @@ const CadMuscleAssesment: React.FC = ({}) => {
         thighLeft: 0,
         thighRight: 0,
         personalTrainer: "",
+        height: 0,
+        weight: 0,
       }); // Limpa o input após o envio
       back();
     } catch (err) {
@@ -98,6 +102,23 @@ const CadMuscleAssesment: React.FC = ({}) => {
       <h1 className="sub-title mb-4">Cadastro de avaliação física</h1>
       <form onSubmit={handleSubmit}>
         <section className="card-container p-5 flex justify-center gap-4 mb-10 flex-col">
+          <div className="row">
+            <Input
+              text="Altura (cm)"
+              type="number"
+              placeholder="Altura..."
+              onChange={(ev) => handleForm("height", ev.target.value)}
+              value={form?.height ?? ""}
+            />
+
+            <Input
+              text="Peso (kg)"
+              type="number"
+              placeholder="Peso..."
+              onChange={(ev) => handleForm("weight", ev.target.value)}
+              value={form?.weight ?? ""}
+            />
+          </div>
           <div className="row">
             <Input
               text="Avaliador fisico"

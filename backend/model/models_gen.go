@@ -38,6 +38,8 @@ type MuscleAssesmentInput struct {
 	Chest           float64   `json:"chest"`
 	ForearmLeft     float64   `json:"forearmLeft"`
 	ForearmRight    float64   `json:"forearmRight"`
+	Height          float64   `json:"height"`
+	Weight          float64   `json:"weight"`
 }
 
 type Mutation struct {

@@ -12,6 +12,8 @@ type MuscleAssesment {
   chest: Float!
   forearmLeft: Float!
   forearmRight: Float!
+  height: Float!
+  weight: Float!
 }
 
 input MuscleAssesmentInput {
@@ -28,6 +30,8 @@ input MuscleAssesmentInput {
   chest: Float!
   forearmLeft: Float!
   forearmRight: Float!
+  height: Float!
+  weight: Float!
 }
 
 extend type Query {
