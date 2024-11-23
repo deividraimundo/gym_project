@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"gym_project/model"
-	"gym_project/utils"
 	"net/http"
 	"time"
 
@@ -27,10 +26,10 @@ func CreateToken(user *model.User) (string, error) {
 		lastNameKey: user.LastName,
 		emailKey:    user.Email,
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
-	str, err := token.SignedString(keyJwt)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	str, err := token.SignedString([]byte(keyJwt))
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("erro criando token: %w", err)
 	}
 
 	return str, nil
@@ -57,15 +56,15 @@ func validateToken(t string) (*model.User, error) {
 	}
 
 	token, _ := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodRSA); !ok {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("there was an error")
 		}
-		return utils.Ptr(keyJwt), nil
+		return []byte(keyJwt), nil
 	})
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		var user = &model.User{
-			ID:       claims[idKey].(int64),
+			ID:       int64(claims[idKey].(float64)),
 			Name:     claims[nameKey].(string),
 			LastName: claims[lastNameKey].(string),
 			Email:    claims[emailKey].(string),

@@ -1,0 +1,66 @@
+services:
+  db:
+    image: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+
+  traefik:
+    image: "traefik:v3.1.2"
+    container_name: "traefik"
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--global.sendAnonymousUsage=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
+  backend:
+    build:
+      context: ./docker
+      dockerfile: backend.dockerfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.routers.backend.middlewares=backend-stripprefix"
+      - "traefik.http.middlewares.backend-stripprefix.stripprefix.prefixes=/api"
+      - "traefik.http.services.backend.loadbalancer.server.port=9000"
+    environment:
+      TZ: America/Sao_Paulo
+    volumes:
+      - $HOME/go/pkg:/go/pkg
+      - $HOME/.cache/go-build:/home/builder/.cache/go-build
+      - ./backend:/src
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./docker
+      dockerfile: frontend.dockerfile
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.services.frontend.loadbalancer.server.port=3000"
+    ports:
+      - "3000:3000"
+    environment:
+      TZ: America/Sao_Paulo
+    volumes:
+      - ./frontend:/src
+    expose:
+      - "3000"
+    depends_on:
+      - backend

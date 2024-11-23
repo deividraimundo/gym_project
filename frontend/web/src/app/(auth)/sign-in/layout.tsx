@@ -30,7 +30,13 @@ export default function SignInLayout() {
   const handleSignIn = (ev: FormEvent<HTMLElement>) => {
     ev.preventDefault();
     ev.stopPropagation();
-    signIn();
+    try {
+      signIn();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      router.push("/");
+    }
   };
 
   const handleSignUp = (ev: React.MouseEvent<HTMLAnchorElement>) => {

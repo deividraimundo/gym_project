@@ -15,8 +15,13 @@ const Header: React.FC = () => {
   const router = useRouter();
 
   const handleLogoff = () => {
-    logoff();
-    router.push("/");
+    try {
+      logoff();
+    } catch (error) {
+      console.error(error);
+    } finally {
+      router.push("/sign-in");
+    }
   };
 
   return (

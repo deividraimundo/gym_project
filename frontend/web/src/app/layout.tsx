@@ -12,7 +12,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       </head>
-      <body className="h-screen w-screen bg-background text-text">
+      <body className="h-screen w-full bg-background text-text">
         <ApolloWrapper>{children}</ApolloWrapper>
       </body>
     </html>

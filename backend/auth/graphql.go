@@ -37,7 +37,7 @@ func ResolverMiddleware() func(context.Context, gql.Resolver) (interface{}, erro
 		fCtx := gql.GetFieldContext(ctx)
 		user := GetUserFromCtx(ctx)
 		// permissão da query schema para o graphql
-		if user == nil && !strings.HasPrefix(fCtx.Path().String(), "__schema") && !strings.HasPrefix(fCtx.Path().String(), "signIn") && !strings.HasPrefix(fCtx.Path().String(), "signUp") {
+		if user == nil && !strings.HasPrefix(fCtx.Path().String(), "__schema") && !strings.HasPrefix(fCtx.Path().String(), "me") && !strings.HasPrefix(fCtx.Path().String(), "signIn") && !strings.HasPrefix(fCtx.Path().String(), "signUp") {
 			return nil, fmt.Errorf("necessário estar autenticado")
 		}
 		return next(ctx)

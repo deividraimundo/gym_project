@@ -8,7 +8,7 @@ import {
 } from "@apollo/experimental-nextjs-app-support";
 import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
 
-const apolloUri = "http://localhost:9000/graphql";
+const apolloUri = "/api/graphql";
 
 if (process.env.NODE_ENV !== "production") {
   loadDevMessages();

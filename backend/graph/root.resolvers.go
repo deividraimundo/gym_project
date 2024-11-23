@@ -10,7 +10,6 @@ import (
 	"fmt"
 	"gym_project/auth"
 	"gym_project/model"
-	"strconv"
 )
 
 // SignIn is the resolver for the signIn field.
@@ -25,7 +24,10 @@ func (r *mutationResolver) SignIn(ctx context.Context, data model.SignInInput) (
 		return "", err
 	}
 
-	token := strconv.Itoa(int(user.ID))
+	token, err := auth.CreateToken(user)
+	if err != nil {
+		return "", err
+	}
 	auth.SetToken(w, token)
 	return token, nil
 }
@@ -42,9 +44,7 @@ func (r *mutationResolver) SignUp(ctx context.Context, data model.SignUpInput) (
 		return "", fmt.Errorf("erro ao cadastrar o usuário: %w", err)
 	}
 
-	token := strconv.Itoa(data.ID)
-	auth.SetToken(w, token)
-	return token, nil
+	return "usuario cadastrado", nil
 }
 
 // Logoff is the resolver for the logoff field.
